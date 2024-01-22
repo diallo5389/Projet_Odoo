@@ -1,7 +1,7 @@
 {
     'name': 'domaines',
     'depends': [
-        'base_setup',
+        'base'
     ],
-    #'application': True,
+    'application': True
 }
