@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<odoo>
+    <menuitem id="domaines_proprietes_menu_racine" name="Domaines">
+	    <menuitem id="domaines_proprietes_menu_premier_niveau" name="Menu Premier Niveau">
+            <menuitem id="domaines_proprietes_menu_action" action="domaines_proprietes_action"/>
+        </menuitem>
+    </menuitem>
+</odoo>
