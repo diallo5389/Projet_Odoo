@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<odoo>
+    <record id="domaines_proprietes_action" model="ir.actions.act_window">
+        <field name="name">Action de Test</field>
+        <field name="res_model">domaines_proprietes</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+</odoo>

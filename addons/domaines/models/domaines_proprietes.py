@@ -14,7 +14,6 @@ class ModelProprietes(models.Model):
     living_area = fields.Integer(string='Living Area')
     facades = fields.Integer(string='Facades')
     garage = fields.Boolean(string='Garage')
-    garden = fields.Boolean(string='Garden')
     garden_area = fields.Integer(string='Garden Area')
     garden_orientation = fields.Selection(
         string='Garden Orientation',

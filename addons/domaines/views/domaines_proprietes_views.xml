@@ -1,8 +1,88 @@
 <?xml version="1.0"?>
 <odoo>
-    <record id="domaines_proprietes_action" model="ir.actions.act_window">
-        <field name="name">Action de Test</field>
-        <field name="res_model">domaines_proprietes</field>
-        <field name="view_mode">tree,form</field>
+    <record id="domaines_proprietes_custom_tree" model="ir.ui.view">
+        <field name="name">domaines_proprietes_tree_view</field>
+        <field name="model">domaines_proprietes</field>
+        <field name="arch" type="xml">
+            <tree string="Propriétés">
+                <field name="name"/>
+                <field name="description"/>
+                <field name="expected_price"/>
+                <field name="selling_price"/>
+                <field name="state_of_sale"/>
+                <field name="date_availability"/>
+                <field name="postcode"/>
+                <field name="bedrooms"/>
+                <field name="living_area"/>
+                <field name="facades"/>
+                <field name="garage"/>
+                <field name="garden_area"/>
+                <field name="garden_orientation"/>
+                <field name="active"/>
+            </tree>
+        </field>
     </record>
+
+    <record id="view_domaines_proprietes_search" model="ir.ui.view">
+        <field name="name">domaines_proprietes_search</field>
+        <field name="model">domaines_proprietes</field>
+        <field name="arch" type="xml">
+            <search string="Search_Group">
+                <field name="name"/>
+                <field name="postcode"/>
+                <separator/>
+                <filter string="Archived" name="inactive" domain="[('active', '=', False)]"/>
+                <filter string="3 Bedroms" name="3_bedroms" domain="[('bedrooms', '=',3)]"/>
+                <filter string="Disponibles" name="proprietes_disponibles" domain="['|',('state_of_sale', '=','New'),('state_of_sale', '=','Offer Received')]"/>
+                <group expand="1">
+                    <filter string="Postcode" name="gostcode" context="{'group_by':'postcode'}"/>
+                    <filter string="Garages" name="garage" context="{'group_by':'garage'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+    
+    <record id="domaines_proprietes_view_form" model="ir.ui.view">
+        <field name="name">domaines_proprietes_form</field>
+        <field name="model">domaines_proprietes</field>
+        <field name="arch" type="xml">
+            <form string="Domaines Properties">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="name" colspan="1"/>
+                        </group>
+                        <group>
+                        </group> 
+                        <group>
+                            <field name="postcode"/>
+                            <field name="date_availability"/>
+                        </group>
+                        <group>
+                            <field name="expected_price"/>
+                            <field name="selling_price"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Description">
+                            <group>
+                                <field name="description"/>
+                                <field name="bedrooms"/>
+                                <field name="living_area"/>
+                                <field name="facades"/>
+                                <field name="garage"/>
+                                <field name="garden_area"/>
+                                <field name="garden_orientation"/>
+                                <field name="state_of_sale"/>
+                                <field name="active"/>
+                            </group>
+                        </page>
+                        <page string="Other Page">
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
 </odoo>
