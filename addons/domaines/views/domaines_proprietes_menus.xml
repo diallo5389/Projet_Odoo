@@ -1,8 +1,14 @@
 <?xml version="1.0"?>
 <odoo>
     <menuitem id="domaines_proprietes_menu_racine" name="Domaines">
-	    <menuitem id="domaines_proprietes_menu_premier_niveau" name="Menu Premier Niveau">
+	    <menuitem id="domaines_proprietes_menu_premier_niveau" name="Advertisement">
             <menuitem id="domaines_proprietes_menu_action" action="domaines_proprietes_action"/>
         </menuitem>
+
+        <menuitem id="domaines_proprietes_types_menu_premier_niveau" name="Settings">
+            <menuitem id="domaines_proprietes_types_menu_action" action="domaines_proprietes_types_action"/>
+            <menuitem id="domaines_proprietes_tags_menu_action" action="domaines_proprietes_tags_action"/>
+        </menuitem>
     </menuitem>
+
 </odoo>

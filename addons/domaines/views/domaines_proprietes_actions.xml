@@ -5,4 +5,16 @@
         <field name="res_model">domaines_proprietes</field>
         <field name="view_mode">tree,form</field>
     </record>
+
+    <record id="domaines_proprietes_types_action" model="ir.actions.act_window">
+        <field name="name">Property Types</field>
+        <field name="res_model">domaines_proprietes_types</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <record id="domaines_proprietes_tags_action" model="ir.actions.act_window">
+        <field name="name">Property Tags</field>
+        <field name="res_model">domaines_proprietes_tags</field>
+        <field name="view_mode">tree,form</field>
+    </record>
 </odoo>

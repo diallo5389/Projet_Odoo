@@ -1,2 +1,5 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
 access_domaines_proprietes,access_domaines_proprietes,model_domaines_proprietes,base.group_user,1,1,1,1
+access_domaines_proprietes_types,access_domaines_proprietes_types,model_domaines_proprietes_types,base.group_user,1,1,1,1
+access_domaines_proprietes_tags,access_domaines_proprietes_tags,model_domaines_proprietes_tags,base.group_user,1,1,1,1
+access_domaines_proprietes_offer,access_domaines_proprietes_offer,model_domaines_proprietes_offer,base.group_user,1,1,1,1
