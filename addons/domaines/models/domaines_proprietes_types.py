@@ -5,4 +5,3 @@ class ModelProprietesTypes(models.Model):
     _description = "Table containing the type of properties"
 
     name = fields.Char(string="Name",required=True)
-
