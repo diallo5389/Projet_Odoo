@@ -1,4 +1,5 @@
 from odoo import fields, models,api
+from odoo.exceptions import UserError
 from datetime import timedelta  
 
 class ModelProprietes(models.Model):
@@ -36,6 +37,8 @@ class ModelProprietes(models.Model):
         selection=[('New','New'), ('Offer Received','Offer Received'), ('Offer Accepted','Offer Accepted'), ('Sold','Sold'), ('Canceled','Canceled')]
     )
     active = fields.Boolean(default=True)
+    action_sold = fields.Boolean(default=False)
+    action_cancel = fields.Boolean(default=False)
 
     @api.depends("living_area","garden_area")
     def _total_area_methode(self):
@@ -58,3 +61,17 @@ class ModelProprietes(models.Model):
         else:
             self.garden_area = 0
             self.garden_orientation = ""
+    
+    def Sold_action(self):
+        if not self.action_cancel:
+            self.action_sold = True
+            return True
+        else:
+            raise UserError("Cette propriété est déjà annulée, ne peux donc être vendue.")
+    
+    def Canceled_action(self):
+        if not self.action_sold:
+            self.action_cancel = True
+            return True
+        else:
+            raise UserError("Cette propriété est déjà vendue, ne peux donc être annulée.")
