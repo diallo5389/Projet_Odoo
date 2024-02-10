@@ -1,6 +1,6 @@
 from odoo import fields, models,api
 from datetime import timedelta 
-from odoo.exceptions import UserError
+from odoo.exceptions import UserError, ValidationError
 
 class ModelProprietesOffer(models.Model):
     _name = "domaines_proprietes_offer"
@@ -50,3 +50,13 @@ class ModelProprietesOffer(models.Model):
                 parent_record.selling_price = 0.0
                 self.status = "Processing"
             self.confirmed = False
+
+    #Contraintes SQL (plus performant en terme de ressources que les contraintes python)
+    _sql_constraints = [
+        ('check_positif', 'CHECK(price > 0.0 )','The offer must be positif.')
+    ]  
+    #Contrainte en python (équivalent au "_sql_constraints")
+    # @api.constrains('price')
+    # def _selling_price(self):
+    #     if self.price <= 0.0 :
+    #         raise ValidationError("The offer must be positif.")

@@ -1,6 +1,7 @@
 from odoo import fields, models,api
-from odoo.exceptions import UserError
+from odoo.exceptions import UserError,ValidationError
 from datetime import timedelta  
+from odoo.tools.float_utils import float_compare
 
 class ModelProprietes(models.Model):
     _name = "domaines_proprietes"
@@ -75,3 +76,14 @@ class ModelProprietes(models.Model):
             return True
         else:
             raise UserError("Cette propriété est déjà vendue, ne peux donc être annulée.")
+        
+    #Contraintes SQL (plus performant en terme de ressources que les contraintes python)
+    _sql_constraints = [
+        ('check_positif', 'CHECK(selling_price > 0.0 )','The selling price must be greather than 0.'),
+        ('check_positif', 'CHECK(expected_price >= 0.0 )','The expected price must be positive.'),
+    ]   
+    
+    @api.constrains('selling_price','expected_price')
+    def _selling_price(self):
+        if self.selling_price < 0.9 * self.expected_price and self.selling_price != 0.0 :
+            raise ValidationError('La prix de vente doit être superieure à 90% du prix attendu')
