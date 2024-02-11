@@ -79,8 +79,8 @@ class ModelProprietes(models.Model):
         
     #Contraintes SQL (plus performant en terme de ressources que les contraintes python)
     _sql_constraints = [
-        ('check_positif', 'CHECK(selling_price > 0.0 )','The selling price must be greather than 0.'),
-        ('check_positif', 'CHECK(expected_price >= 0.0 )','The expected price must be positive.'),
+        ('check_positif', 'CHECK(selling_price >= 0.0 )','The selling price must be greather than 0.'),
+        ('check_positif', 'CHECK(expected_price > 0.0 )','The expected price must be positive.'),
     ]   
     
     @api.constrains('selling_price','expected_price')

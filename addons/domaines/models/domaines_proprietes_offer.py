@@ -7,7 +7,7 @@ class ModelProprietesOffer(models.Model):
     _description = "Table containing offers"
 
     price = fields.Float(string="Price")
-    status = fields.Selection(string="Status", selection=[("Processing","Processing"),("Accepted","Accepted"),("Refused","Refused")],copy=False)
+    status = fields.Selection(string="Status",default="Processing", selection=[("Processing","Processing"),("Accepted","Accepted"),("Refused","Refused")],copy=False)
     validity = fields.Integer(string="Validity (days)", default=7)
     deadline = fields.Date(string="Deadline", compute = "_deadline", inverse = "_inverse_deadline")
     partner_id = fields.Many2one("res.partner", string="Partner",required=True)
@@ -48,12 +48,11 @@ class ModelProprietesOffer(models.Model):
             if self.confirmed :
                 parent_record.buyer_id = ""
                 parent_record.selling_price = 0.0
-                self.status = "Processing"
             self.confirmed = False
 
     #Contraintes SQL (plus performant en terme de ressources que les contraintes python)
     _sql_constraints = [
-        ('check_positif', 'CHECK(price > 0.0 )','The offer must be positif.')
+        ('check_positive', 'CHECK(price > 0.0 )','The offer must be positif.')
     ]  
     #Contrainte en python (équivalent au "_sql_constraints")
     # @api.constrains('price')
