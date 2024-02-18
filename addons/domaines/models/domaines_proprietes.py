@@ -6,17 +6,20 @@ from odoo.tools.float_utils import float_compare
 class ModelProprietes(models.Model):
     _name = "domaines_proprietes"
     _description = "Ventes et gestion de domaines"
+    _order = "sequence,id desc"
 
+    sequence = fields.Integer(string='Sequence',default=1)
     name =  fields.Char(string='Name',required=True)
     description = fields.Text(string='Description')
     property_type_id = fields.Many2one("domaines_proprietes_types", string="Property Type")
-    properties_tags_id = fields.Many2many("domaines_proprietes_tags", required=True)
+    properties_tags_id = fields.Many2many("domaines_proprietes_tags", string="Tags", required=True)
+    color_code = fields.Integer(default=1)
     salesman_id = fields.Many2one("res.users", string="Salesman",default=lambda self: self.env.user)
     buyer_id = fields.Many2one("res.partner", string="Buyer",copy=False)
     offer_id = fields.One2many("domaines_proprietes_offer","property_id")
     postcode = fields.Char(string='Postcode')
     date_availability = fields.Date(default=fields.Date.today() + timedelta(days=90),copy=False)
-    expected_price = fields.Float(string='Expected Price',required=True) 
+    expected_price = fields.Float(string='Expected Price',required=True)
     selling_price = fields.Float(string='Selling Price',copy=False,readonly=True)
     best_offer = fields.Float(compute="_best_offer",string="Best Offer")
     bedrooms = fields.Integer(default=2,string='Bedrooms')
@@ -25,7 +28,7 @@ class ModelProprietes(models.Model):
     garage = fields.Boolean(string='Garage')
     garden = fields.Boolean(string="Garden", default=False)
     garden_area = fields.Integer(string='Garden Area')
-    total_area = fields.Float(compute="_total_area_methode",string="Total Area") 
+    total_area = fields.Float(compute="_total_area_methode",string="Total Area")
     garden_orientation = fields.Selection(
         string='Garden Orientation',
         selection=[('North','North'), ('South','South'), ('East','Eest'), ('West','West')]
@@ -33,6 +36,13 @@ class ModelProprietes(models.Model):
     state_of_sale = fields.Selection(
         default="New",
         string='State',
+        copy=False,
+        required=True,
+        selection=[('New','New'), ('Offer Received','Offer Received'), ('Offer Accepted','Offer Accepted'), ('Sold','Sold'), ('Canceled','Canceled')]
+    )
+    state_of_sale_alias = fields.Selection(
+        default="New",
+        string='State_alias',
         copy=False,
         required=True,
         selection=[('New','New'), ('Offer Received','Offer Received'), ('Offer Accepted','Offer Accepted'), ('Sold','Sold'), ('Canceled','Canceled')]
@@ -62,6 +72,10 @@ class ModelProprietes(models.Model):
         else:
             self.garden_area = 0
             self.garden_orientation = ""
+
+    @api.onchange("state_of_sale")
+    def _state_of_sale_alias(self):
+        self.state_of_sale_alias = self.state_of_sale
     
     def Sold_action(self):
         if not self.action_cancel:

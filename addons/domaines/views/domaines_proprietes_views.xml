@@ -1,21 +1,24 @@
 <?xml version="1.0"?>
 <odoo>
+
     <record id="domaines_proprietes_custom_tree" model="ir.ui.view">
         <field name="name">domaines_proprietes_tree_view</field>
         <field name="model">domaines_proprietes</field>
         <field name="arch" type="xml">
-            <tree string="Propriétés">
+            <tree string="Propriétés" decoration-success="state_of_sale=='Offer Received' or state_of_sale=='Offer Accepted'" decoration-bf="state_of_sale=='Offer Accepted'" decoration-warning="state_of_sale=='New'" decoration-muted="state_of_sale=='Sold'" >
+                <field name="sequence" widget="handle"/>
                 <field name="name"/>
                 <field name="description"/>
-                <field name="state_of_sale"/>
+                <field name="properties_tags_id" widget="many2many_tags" options="{'color_field': 'couleur'}"/>
                 <field name="expected_price"/>
                 <field name="selling_price"/>
-                <field name="date_availability"/>
-                <field name="postcode"/>
-                <field name="total_area"/>
-                <field name="facades"/>
-                <field name="garage"/>
+                <field name="date_availability" optional="hidden"/>
+                <field name="postcode" optional="show"/>
+                <field name="total_area" optional="show"/>
+                <field name="facades" optional="show"/>
+                <field name="garage" optional="show"/>
                 <field name="best_offer"/>
+                <field name="state_of_sale" optional="hidden"/>
             </tree>
         </field>
     </record>
@@ -27,10 +30,12 @@
             <search string="Search_Group">
                 <field name="name"/>
                 <field name="postcode"/>
+                <field name="living_area" string="Living Area"
+					filter_domain="[('living_area', '>=', self)]"/>
                 <separator/>
                 <filter string="Archived" name="inactive" domain="[('active', '=', False)]"/>
                 <filter string="3 Bedroms" name="3_bedroms" domain="[('bedrooms', '=',3)]"/>
-                <filter string="Disponibles" name="proprietes_disponibles" domain="['|',('state_of_sale', '=','New'),('state_of_sale', '=','Offer Received')]"/>
+                <filter string="Available" name="proprietes_disponibles" domain="['|',('state_of_sale', '=','New'),('state_of_sale', '=','Offer Received')]"/>
                 <group expand="1">
                     <filter string="Postcode" name="gostcode" context="{'group_by':'postcode'}"/>
                     <filter string="Garages" name="garage" context="{'group_by':'garage'}"/>
@@ -44,20 +49,23 @@
         <field name="model">domaines_proprietes</field>
         <field name="arch" type="xml">
             <form string="Domaines Properties">
-                <header>
-                    <button name="Sold_action" type="object" class="oe_highlight" string="Sold"/>
-                    <button name="Canceled_action" type="object" class="oe_highlight" string="Cancel"/>
-                </header>                   
+                             
+                <header style="background-color: #ffffff; position: fixed; top: -6px; width: 100%;">
+                    <button name="Sold_action" type="object" class="oe_highlight" string="Sold" invisible="state_of_sale_alias != 'Sold'"/>
+                    <button name="Canceled_action" type="object" class="oe_highlight" string="Cancel" invisible="state_of_sale_alias != 'Canceled'" />
+                    <field name="state_of_sale_alias" widget="statusbar" statusbar_visible="New,Offer Received,Offer Accepted,Sold"/>
+                </header>
+
                 <sheet>
                     <div class="oe_title">
                         <h1 class="mb32">
                             <field name="name" class="mb16" style="font-family: Arial, sans-serif; font-size: 45px; font-weight: bold;"/>
                         </h1>
-                        <field name="properties_tags_id" widget="many2many_tags"/>
+                        <field name="properties_tags_id" widget="many2many_tags" options="{'color_field': 'couleur'}" />
                     </div>
                     <group>
                         <group>
-                            <field name="property_type_id"/>
+                            <field name="property_type_id" options="{'no_create': true, 'no_quick_create': true, 'no_open': true}"/>
                             <field name="postcode"/>
                             <field name="date_availability"/>
                         </group>
@@ -77,14 +85,14 @@
                                 <field name="garage"/>
                                 <field name="living_area"/>
                                 <field name="garden"/>
-                                <field name="garden_area"/>
-                                <field name="garden_orientation"/>
+                                <field name="garden_area" invisible="not garden"/>
+                                <field name="garden_orientation" invisible="not garden"/>
                                 <field name="total_area"/>
                                 <field name="active"/>
                             </group>
                         </page>
                         <page string="Offers">
-                            <field name="offer_id"/>
+                            <field name="offer_id" readonly="state_of_sale == 'Offer Accepted' or state_of_sale == 'Sold' or state_of_sale == 'Canceled'" />
                         </page>
                         <page string="Other Information">
                             <group>
@@ -102,14 +110,15 @@
         <field name="name">domaines_proprietes_offer_tree_view</field>
         <field name="model">domaines_proprietes_offer</field>
         <field name="arch" type="xml">
-            <tree string="Offre_tree">
+            <tree string="Offre_tree" editable="bottom" decoration-success="confirmed==True" decoration-danger="confirmed==False" >
                 <field name="price"/>
                 <field name="partner_id"/>
                 <field name="validity"/>
                 <field name="deadline"/>
-                <field name="status"/>
-                <button name="action_confirm" string="Confirm" type="object" icon="fa-check"/>
-                <button name="action_refuse" string="Refuse" type="object" icon="fa-times"/>
+                <button name="action_confirm" string="Confirm" type="object" icon="fa-check" invisible ="status == 'Accepted' or status == 'Refused'"/>
+                <button name="action_refuse" string="Refuse" type="object" icon="fa-times" invisible ="status == 'Accepted' or status == 'Refused'"/>
+                <field name="status" invisible ="1" optional="hidden"/>
+                <field name="confirmed" invisible ="1" optional="hidden" />
             </tree>  
         </field>
     </record>
@@ -129,6 +138,60 @@
                     </group>
                 </sheet>
             </form>
+        </field>
+    </record>
+
+    <record id="domaines_proprietes_types_custom_tree" model="ir.ui.view">
+        <field name="name">domaines_proprietes_types_tree_view</field>
+        <field name="model">domaines_proprietes_types</field>
+        <field name="arch" type="xml">
+            <tree string="Propriétés" >
+                <field name="name" />
+            </tree>
+        </field>
+    </record>
+
+    <record id="domaines_proprietes_types_form" model="ir.ui.view">
+        <field name="name">domaines_proprietes_types_form</field>
+        <field name="model">domaines_proprietes_types</field>
+        <field name="arch" type="xml">
+            <form string="Domaines Properties Types">
+                <header style="background-color: #ffffff; position: fixed; top: -6px; width: 100%;">
+                    <div class="text-right">  
+                        <button name="%(domaines_proprietes_offers_action)d" 
+                            class="oe_stat_button"
+                            type="action">
+                            <span class="fa fa-money fa-lg" style="font-size: 32px;"></span>
+                            <div class="o_stat_text">
+                                <field name="offer_count"/>
+                                Offers
+                            </div>
+                        </button>
+                    </div>      
+                </header>
+                <div class="oe_title">
+                    <h1 class="mb32">
+                        <field name="name" class="mb16" style="font-family: Arial, sans-serif; font-size: 45px; font-weight: bold;"/>
+                    </h1>
+                </div>
+                <field name="property_ids">
+                    <tree default_order="expected_price desc">
+                        <field name="name"/>
+                        <field name="expected_price"/>
+                        <field name="state_of_sale"/>
+                    </tree>
+                </field>
+            </form>
+        </field>
+    </record>
+
+    <record id="domaines_proprietes_tags_custom_tree" model="ir.ui.view">
+        <field name="name">domaines_proprietes_tags_tree_view</field>
+        <field name="model">domaines_proprietes_tags</field>
+        <field name="arch" type="xml">
+            <tree string="Propriétés" editable="bottom">
+                <field name="name" />
+            </tree>
         </field>
     </record>
 

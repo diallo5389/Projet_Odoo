@@ -5,6 +5,7 @@ from odoo.exceptions import UserError, ValidationError
 class ModelProprietesOffer(models.Model):
     _name = "domaines_proprietes_offer"
     _description = "Table containing offers"
+    _order = "price desc"
 
     price = fields.Float(string="Price")
     status = fields.Selection(string="Status",default="Processing", selection=[("Processing","Processing"),("Accepted","Accepted"),("Refused","Refused")],copy=False)
@@ -13,6 +14,7 @@ class ModelProprietesOffer(models.Model):
     partner_id = fields.Many2one("res.partner", string="Partner",required=True)
     property_id = fields.Many2one("domaines_proprietes",required=True)
     confirmed = fields.Boolean()
+    property_type_id = fields.Many2one(related = "property_id.property_type_id", store=True)
 
     @api.depends("validity")
     def _deadline(self):
@@ -26,8 +28,6 @@ class ModelProprietesOffer(models.Model):
             if record.create_date:
                 record.validity = (record.deadline - record.create_date.date()).days
 
-    from odoo.exceptions import UserError
-
     def action_confirm(self):    
         parent_record = self.env['domaines_proprietes'].search([('offer_id', '=', self.id)], limit=1)
         offers = parent_record.offer_id
@@ -40,7 +40,6 @@ class ModelProprietesOffer(models.Model):
             parent_record.selling_price = self.price
             self.status = "Accepted"
         
-    
     def action_refuse(self):
         parent_record = self.env['domaines_proprietes'].search([('offer_id', '=', self.id)], limit=1)
         if parent_record:
