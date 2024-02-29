@@ -53,8 +53,30 @@ class ModelProprietesOffer(models.Model):
     _sql_constraints = [
         ('check_positive', 'CHECK(price > 0.0 )','The offer must be positif.')
     ]  
+    
     #Contrainte en python (équivalent au "_sql_constraints")
     # @api.constrains('price')
     # def _selling_price(self):
     #     if self.price <= 0.0 :
     #         raise ValidationError("The offer must be positif.")
+
+    @api.model
+    def create(self,vals):
+        propriete_parent = self.env['domaines_proprietes'].browse(vals['property_id']) #Recherche de la propriété pour laquelle l'offre est en train d'être créée
+        for record in propriete_parent.offer_id :
+            if record :     
+                if record.price > vals['price']:
+                    raise UserError(f"Des offres supérieures à {vals['price']} GNF existent déjà !")
+        if propriete_parent.state_of_sale == "New":
+            propriete_parent.state_of_sale = "Offer Received"
+        return super().create(vals)
+    
+    #Pas parvenu à mettre "New" sur le statut de la propriété lors de la suppression de la dernière offre d'une propriété
+    # @api.ondelete(at_uninstall=False)
+    # def _offres_existes(self):
+    #     propriete_parent = self.env['domaines_proprietes'].browse(self.property_id) #Recherche de la propriété pour laquelle l'offre est en train d'être supprimée
+    #     for record in propriete_parent.offer_id :
+    #         print(f"{record}Bonjourrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr")
+    #     raise UserError(f"Finnnnnnnnnnnnnnnnn!")
+        # if len(propriete_parent.offer_id) <= 1 :
+        #     propriete_parent.state_of_sale = "New"
