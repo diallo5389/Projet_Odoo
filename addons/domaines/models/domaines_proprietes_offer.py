@@ -1,6 +1,7 @@
 from odoo import fields, models,api
 from datetime import timedelta 
 from odoo.exceptions import UserError, ValidationError
+import re
 
 class ModelProprietesOffer(models.Model):
     _name = "domaines_proprietes_offer"
@@ -38,6 +39,8 @@ class ModelProprietesOffer(models.Model):
         if parent_record:
             parent_record.buyer_id = self.partner_id
             parent_record.selling_price = self.price
+            parent_record.state_of_sale = "Offer Accepted"
+            parent_record.state_of_sale_alias = "Offer Accepted"
             self.status = "Accepted"
         
     def action_refuse(self):
@@ -69,14 +72,27 @@ class ModelProprietesOffer(models.Model):
                     raise UserError(f"Des offres supérieures à {vals['price']} GNF existent déjà !")
         if propriete_parent.state_of_sale == "New":
             propriete_parent.state_of_sale = "Offer Received"
+            propriete_parent.state_of_sale_alias = "Offer Received"
         return super().create(vals)
     
-    #Pas parvenu à mettre "New" sur le statut de la propriété lors de la suppression de la dernière offre d'une propriété
-    # @api.ondelete(at_uninstall=False)
-    # def _offres_existes(self):
-    #     propriete_parent = self.env['domaines_proprietes'].browse(self.property_id) #Recherche de la propriété pour laquelle l'offre est en train d'être supprimée
-    #     for record in propriete_parent.offer_id :
-    #         print(f"{record}Bonjourrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr")
-    #     raise UserError(f"Finnnnnnnnnnnnnnnnn!")
-        # if len(propriete_parent.offer_id) <= 1 :
-        #     propriete_parent.state_of_sale = "New"
+    @api.ondelete(at_uninstall=False)
+    def _offres_existes(self):
+        propriete_parent = parent_record = self.env['domaines_proprietes'].search([('offer_id', '=', self.id)], limit=1) #Recherche de la propriété pour laquelle l'offre est en train d'être créée
+        records = self.env['domaines_proprietes_offer'].search([('property_id', '=',int(re.search(r'\d+', str(propriete_parent)).group()))]) #Extraction du numéro d'identification de la propriété à laquelle appartient les offres puis recherche des offres en question.
+        
+        if len(records) > 1:   
+            offer = False
+            for record in records:
+                if record.id != self.id and record.confirmed is True:
+                    propriete_parent.state_of_sale = "Offer Accepted"
+                    propriete_parent.state_of_sale_alias = "Offer Accepted"
+                    offer = True
+            if not offer:
+                propriete_parent.state_of_sale = "Offer Received"
+                propriete_parent.state_of_sale_alias = "Offer Received"
+                propriete_parent.buyer_id = ""
+                propriete_parent.selling_price = 0.0
+
+        else:
+            propriete_parent.state_of_sale = "New"
+            propriete_parent.state_of_sale_alias = "New"

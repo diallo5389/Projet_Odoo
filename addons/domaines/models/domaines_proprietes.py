@@ -1,4 +1,4 @@
-from odoo import fields, models,api
+from odoo import fields, models, api
 from odoo.exceptions import UserError,ValidationError
 from datetime import timedelta  
 
@@ -77,6 +77,7 @@ class ModelProprietes(models.Model):
         self.state_of_sale_alias = self.state_of_sale
     
     def Sold_action(self):
+        print("Model de la fonction parent")
         if not self.action_cancel:
             self.action_sold = True
             return True
@@ -99,7 +100,7 @@ class ModelProprietes(models.Model):
     @api.constrains('selling_price','expected_price')
     def _selling_price(self):
         if self.selling_price < 0.9 * self.expected_price and self.selling_price != 0.0 :
-            raise ValidationError('La prix de vente doit être superieure à 90% du prix attendu')
+            raise ValidationError('Le prix de vente doit être superieure à 90% du prix attendu')
         
     @api.ondelete(at_uninstall=False)
     def _notdelete(self):
