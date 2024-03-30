@@ -106,6 +106,40 @@
         </field>
     </record>
 
+    <record id="domaines_proprietes_view_kanban" model="ir.ui.view">
+        <field name="name">domaines_proprietes_kanban</field>
+        <field name="model">domaines_proprietes</field>
+        <field name="arch" type="xml">
+            <kanban default_group_by="property_type_id" group_create="False" groups_draggable="False">
+                <field name="state_of_sale"/>
+                <templates>
+                    <t t-name="kanban-box">
+                        <div class="oe_kanban_global_click">
+                            <span style="color: black; font-weight: bold;"><field name="name"/></span>
+                            <field name="properties_tags_id" widget="many2many_tags" options="{'color_field': 'couleur'}"/>
+                            <div>
+                                <span style="margin-left: 20px;">State Of Sale : <field name="state_of_sale"/></span>
+                            </div>
+                            <div>
+                                <span style="margin-left: 20px;">Expected Price : <field name="expected_price"/></span>
+                            </div>
+                            <div t-if="record.state_of_sale.raw_value == 'Offer Received'">
+                                <span style="margin-left: 20px;">Best Price : <field name="best_offer"/></span>
+                            </div>
+                            <div t-if="record.state_of_sale.raw_value == 'Offer Accepted'">
+                                <span style="margin-left: 20px;color: green;">Selling Price : <field name="selling_price"/></span>
+                            </div>
+                            <div t-if="record.state_of_sale.raw_value == 'Sold'">
+                                <span style="margin-left: 20px;color: green;font-weight: bold;">Selling Price : <field name="selling_price"/></span>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+
     <record id="domaines_proprietes_offer_tree" model="ir.ui.view">
         <field name="name">domaines_proprietes_offer_tree_view</field>
         <field name="model">domaines_proprietes_offer</field>
