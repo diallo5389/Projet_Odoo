@@ -50,7 +50,7 @@ msgstr ""
 #. module: portal
 #: model_terms:ir.ui.view,arch_db:portal.my_account_link
 msgid "<i class=\"fa fa-fw fa-id-card-o me-1 small text-primary\"/> My Account"
-msgstr "<i class=\"fa fa-fw fa-id-card-o me-1 small text-primary\"/> 自分のアカウント"
+msgstr "<i class=\"fa fa-fw fa-id-card-o me-1 small text-primary\"/> マイアカウント"
 
 #. module: portal
 #: model_terms:ir.ui.view,arch_db:portal.user_dropdown
@@ -360,7 +360,7 @@ msgstr "メールに表示するコンテンツを追加する"
 #. module: portal
 #: model_terms:ir.ui.view,arch_db:portal.portal_my_home
 msgid "Add, remove or modify your addresses"
-msgstr "住所の追加、削除、変更ができます"
+msgstr "住所の追加、削除、変更ができます。"
 
 #. module: portal
 #: model_terms:ir.ui.view,arch_db:portal.portal_my_security
@@ -393,7 +393,7 @@ msgstr "アバター"
 #: model_terms:ir.ui.view,arch_db:portal.portal_my_security
 #: model_terms:ir.ui.view,arch_db:portal.portal_share_wizard
 msgid "Cancel"
-msgstr "キャンセル"
+msgstr "取消"
 
 #. module: portal
 #: model_terms:ir.ui.view,arch_db:portal.portal_my_security
@@ -467,7 +467,7 @@ msgstr "コンフィグ設定"
 #. module: portal
 #: model_terms:ir.ui.view,arch_db:portal.portal_my_home
 msgid "Configure your connection parameters"
-msgstr "パスワード変更、２要素認証など、接続パラメータの設定ができます"
+msgstr "パスワード変更、２要素認証など、接続パラメータの設定ができます。"
 
 #. module: portal
 #. odoo-javascript
@@ -877,7 +877,7 @@ msgstr "複数会社のレポートはサポートされていません。"
 #. module: portal
 #: model_terms:ir.ui.view,arch_db:portal.portal_layout
 msgid "My account"
-msgstr "自分のアカウント"
+msgstr "マイアカウント"
 
 #. module: portal
 #: model_terms:ir.ui.view,arch_db:portal.portal_my_details_fields

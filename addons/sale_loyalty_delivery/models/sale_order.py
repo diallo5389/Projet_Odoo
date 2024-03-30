@@ -30,8 +30,13 @@ class SaleOrder(models.Model):
             lambda line: not line.is_reward_line
         )
 
+    def _get_not_rewarded_order_lines(self):
+        """Exclude delivery lines from consideration for reward points."""
+        order_line = super()._get_not_rewarded_order_lines()
+        return order_line.filtered(lambda line: not line.is_delivery)
+
     def _get_reward_values_free_shipping(self, reward, coupon, **kwargs):
-        delivery_line = self.order_line.filtered(lambda l: l.is_delivery)
+        delivery_line = self.order_line.filtered(lambda l: l.is_delivery)[:1]
         taxes = delivery_line.product_id.taxes_id.filtered(lambda t: t.company_id.id == self.company_id.id)
         taxes = self.fiscal_position_id.map_tax(taxes)
         max_discount = reward.discount_max_amount or float('inf')

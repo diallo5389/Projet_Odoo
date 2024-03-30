@@ -1838,7 +1838,8 @@ class MailThread(models.AbstractModel):
         """ Returns suggested recipients for ids. Those are a list of
         tuple (partner_id, partner_name, reason, default_create_value), to be managed by Chatter. """
         result = dict((res_id, []) for res_id in self.ids)
-        if 'user_id' in self._fields:
+        user_field = self._fields.get('user_id')
+        if user_field and user_field.type == 'many2one' and user_field.comodel_name == 'res.users':
             for obj in self.sudo():  # SUPERUSER because of a read on res.users that would crash otherwise
                 if not obj.user_id or not obj.user_id.partner_id:
                     continue
@@ -1956,10 +1957,20 @@ class MailThread(models.AbstractModel):
 
         partners = self._mail_search_on_partner(remaining, extra_domain=extra_domain)
         done_partners += [partner for partner in partners]
-        remaining = [email for email in normalized_emails if email not in [partner.email_normalized for partner in done_partners]]
 
-        # prioritize current user if exists in list
-        done_partners.sort(key=lambda p: self.env.user.partner_id != p)
+        # prioritize current user if exists in list, and partners with matching company ids
+        if company_fname := records and records._mail_get_company_field():
+            def sort_key(p):
+                return (
+                    self.env.user.partner_id == p,           # prioritize user
+                    p.company_id in records[company_fname],  # then partner associated w/ records
+                    not p.company_id,                        # else pick partner w/out company_id
+                )
+        else:
+            def sort_key(p):
+                return (self.env.user.partner_id == p, not p.company_id)
+
+        done_partners.sort(key=sort_key, reverse=True)  # reverse because False < True
 
         # iterate and keep ordering
         partners = []
@@ -2947,6 +2958,23 @@ class MailThread(models.AbstractModel):
             'subtitles',
         }
 
+    @api.model
+    def _is_notification_scheduled(self, notify_scheduled_date):
+        """ Helper to check if notification are about to be scheduled. Eases
+        overrides.
+
+        :param notify_scheduled_date: value of 'scheduled_date' given in
+          notification parameters: arbitrary datetime (as a date, datetime or
+          a string), may be void. See 'MailMail._parse_scheduled_datetime()';
+
+        :return bool: True if a valid datetime has been found and is in the
+          future; False otherwise.
+        """
+        if notify_scheduled_date:
+            parsed_datetime = self.env['mail.mail']._parse_scheduled_datetime(notify_scheduled_date)
+            notify_scheduled_date = parsed_datetime.replace(tzinfo=None) if parsed_datetime else False
+        return notify_scheduled_date if notify_scheduled_date and notify_scheduled_date > self.env.cr.now() else False
+
     def _raise_for_invalid_parameters(self, parameter_names, forbidden_names=None, restricting_names=None):
         """ Helper to warn about invalid parameters (or fields).
 
@@ -3048,11 +3076,8 @@ class MailThread(models.AbstractModel):
             return recipients_data
 
         # if scheduled for later: add in queue instead of generating notifications
-        scheduled_date = kwargs.pop('scheduled_date', None)
+        scheduled_date = self._is_notification_scheduled(kwargs.pop('scheduled_date', None))
         if scheduled_date:
-            parsed_datetime = self.env['mail.mail']._parse_scheduled_datetime(scheduled_date)
-            scheduled_date = parsed_datetime.replace(tzinfo=None) if parsed_datetime else False
-        if scheduled_date and scheduled_date > datetime.datetime.utcnow():
             # send the message notifications at the scheduled date
             self.env['mail.message.schedule'].sudo().create({
                 'scheduled_datetime': scheduled_date,
@@ -3061,11 +3086,11 @@ class MailThread(models.AbstractModel):
             })
         else:
             # generate immediately the <mail.notification>
-            # and send the <mail.mail> and the <bus.bus> notifications
+            # and send the <mail.mail>, <mail.push> and the <bus.bus> notifications
             self._notify_thread_by_inbox(message, recipients_data, msg_vals=msg_vals, **kwargs)
             self._notify_thread_by_email(message, recipients_data, msg_vals=msg_vals, **kwargs)
+            self._notify_thread_by_web_push(message, recipients_data, msg_vals, **kwargs)
 
-        self._notify_thread_by_web_push(message, recipients_data, msg_vals, **kwargs)
         return recipients_data
 
     def _notify_thread_by_inbox(self, message, recipients_data, msg_vals=False, **kwargs):
@@ -4434,7 +4459,7 @@ class MailThread(models.AbstractModel):
 
         if author_name:
             title = "%s: %s" % (author_name, title)
-            icon = "/web/image/res.users/%d/avatar_128" % author_id[0]
+            icon = "/web/image/res.partner/%d/avatar_128" % author_id[0]
 
         payload = {
             'title': title,

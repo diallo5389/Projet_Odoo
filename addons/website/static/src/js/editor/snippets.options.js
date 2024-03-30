@@ -23,7 +23,6 @@ import {
 import { renderToElement, renderToFragment } from "@web/core/utils/render";
 import { browser } from "@web/core/browser/browser";
 import {
-    applyTextHighlight,
     removeTextHighlight,
     drawTextHighlightSVG,
 } from "@website/js/text_processing";
@@ -247,7 +246,7 @@ const FontFamilyPickerUserValueWidget = SelectUserValueWidget.extend({
             googleLocalFontsEls.forEach((el, index) => {
                 $(el).append(renderToFragment('website.delete_google_font_btn', {
                     index: index,
-                    local: true,
+                    local: "true",
                 }));
             });
         }
@@ -657,6 +656,7 @@ options.userValueWidgetsRegistry['we-gpspicker'] = GPSPicker;
 options.Class.include({
     custom_events: Object.assign({}, options.Class.prototype.custom_events || {}, {
         'google_fonts_custo_request': '_onGoogleFontsCustoRequest',
+        'request_save': '_onSaveRequest',
     }),
     specialCheckAndReloadMethodsNames: ['customizeWebsiteViews', 'customizeWebsiteVariable', 'customizeWebsiteColor'],
 
@@ -1030,6 +1030,22 @@ options.Class.include({
             reloadEditor: true,
         });
     },
+    /**
+     * This handler prevents reloading the page twice with a `request_save`
+     * event when a widget is already going to handle reloading the page.
+     *
+     * @param {OdooEvent} ev
+     */
+    _onSaveRequest(ev) {
+        // If a widget requires a reload, any subsequent request to save is
+        // useless, as the reload will save the page anyway. It can cause
+        // a race condition where the wysiwyg attempts to reload the page twice,
+        // so ignore the request.
+        if (this.__willReload) {
+            ev.stopPropagation();
+            return;
+        }
+    }
 });
 
 function _getLastPreFilterLayerElement($el) {
@@ -2206,6 +2222,8 @@ options.registry.collapse = options.Class.extend({
         const panelId = setUniqueId($panel, 'myCollapseTab');
         $tab.attr('data-bs-target', '#' + panelId);
         $tab.data('bs-target', '#' + panelId);
+
+        $tab[0].setAttribute("aria-controls", panelId);
     },
 });
 
@@ -3557,6 +3575,10 @@ options.registry.WebsiteAnimate = options.Class.extend({
             this._toggleImagesLazyLoading(true);
         }
         if (widgetValue === "onHover") {
+            // Pause the history until the hover effect is applied in
+            // "setImgShapeHoverEffect". This prevents saving the intermediate
+            // steps done (in a tricky way) up to that point.
+            this.options.wysiwyg.odooEditor.historyPauseSteps();
             this.trigger_up("option_update", {
                 optionName: "ImageTools",
                 name: "enable_hover_effect",
@@ -3650,8 +3672,7 @@ options.registry.WebsiteAnimate = options.Class.extend({
                     const hoverEffectWidget = hoverEffectOverlayWidget.getParent();
                     const imageToolsOpt = hoverEffectWidget.getParent();
                     return (
-                        !imageToolsOpt._isDeviceShape()
-                        && !imageToolsOpt._isAnimatedShape()
+                        imageToolsOpt._canHaveHoverEffect() && imageToolsOpt._isImageSupportedForShapes()
                         && !await isImageCorsProtected(this.$target[0])
                     );
                 }
@@ -3746,6 +3767,18 @@ options.registry.TextHighlight = options.Class.extend({
     onBlur() {
         this.leftPanelEl.appendChild(this.el);
     },
+    /**
+    * @override
+    */
+    notify(name, data) {
+        // Apply the highlight effect DOM structure when added for the first time
+        // and display the highlight effects grid immediately.
+        if (name === "new_text_highlight") {
+            this._autoAdaptHighlights();
+            this._requestUserValueWidgets("text_highlight_opt")[0]?.enable();
+        }
+        this._super(...arguments);
+    },
 
     //--------------------------------------------------------------------------
     // Options
@@ -3785,21 +3818,19 @@ options.registry.TextHighlight = options.Class.extend({
                 svg.remove();
             });
         } else {
-            applyTextHighlight(this.$target[0], highlightID);
+            this._autoAdaptHighlights();
         }
     },
     /**
-     * @override
+     * Used to set the highlight effect DOM structure on the targeted text
+     * content.
+     *
+     * @private
      */
-    async _computeWidgetState(methodName, params) {
-        const value = await this._super(...arguments);
-        if (methodName === "selectStyle" && value === "currentColor") {
-            const style = window.getComputedStyle(this.$target[0]);
-            // The highlight default color is the text's "currentColor".
-            // This value should be handled correctly by the option.
-            return style.color;
-        }
-        return value;
+    _autoAdaptHighlights() {
+        this.trigger_up("snippet_edition_request", { exec: async () =>
+            await this._refreshPublicWidgets($(this.options.wysiwyg.odooEditor.editable))
+        });
     },
 
     //--------------------------------------------------------------------------
@@ -4086,8 +4117,15 @@ options.registry.GalleryElement = options.Class.extend({
 });
 
 options.registry.Button = options.Class.extend({
-    forceDuplicateButton: true,
-
+    /**
+     * @override
+     */
+    init() {
+        this._super(...arguments);
+        const isUnremovableButton = this.$target[0].classList.contains("oe_unremovable");
+        this.forceDuplicateButton = !isUnremovableButton;
+        this.forceNoDeleteButton = isUnremovableButton;
+    },
     /**
      * @override
      */

@@ -1236,7 +1236,7 @@ msgstr "Ansatte koder"
 #: code:addons/hr/static/src/views/archive_employee_hook.js:0
 #, python-format
 msgid "Employee Termination"
-msgstr ""
+msgstr "Opsigelse af medarbejder"
 
 #. module: hr
 #: model:ir.model.fields,field_description:hr.field_hr_employee__employee_type
@@ -1247,7 +1247,7 @@ msgstr "Stillingstype"
 #. module: hr
 #: model_terms:ir.ui.view,arch_db:hr.res_config_settings_view_form
 msgid "Employee Update Rights"
-msgstr "Ansatte opdater rettigheder"
+msgstr "Medarbejder opdater rettigheder"
 
 #. module: hr
 #: model:ir.model.fields,help:hr.field_hr_employee__bank_account_id
@@ -1299,7 +1299,7 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:hr.view_employee_filter
 #: model_terms:ir.ui.view,arch_db:hr.view_employee_tree
 msgid "Employees"
-msgstr "Ansatte"
+msgstr "Medarbejdere"
 
 #. module: hr
 #: model:ir.model.fields,field_description:hr.field_res_partner__employees_count
@@ -3210,7 +3210,7 @@ msgstr "Gyldig arbejdstilladelse i Belgien"
 #: code:addons/hr/static/src/components/avatar_card/avatar_card_popover_patch.xml:0
 #, python-format
 msgid "View profile"
-msgstr ""
+msgstr "Se profil"
 
 #. module: hr
 #: model:ir.model.fields,field_description:hr.field_hr_employee__visa_expire

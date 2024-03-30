@@ -354,10 +354,13 @@ class StockQuant(models.Model):
                 ('location_id', '=', self.location_id.id),
                 ('location_dest_id', '=', self.location_id.id),
             ('lot_id', '=', self.lot_id.id),
-            '|',
-                ('package_id', '=', self.package_id.id),
-                ('result_package_id', '=', self.package_id.id),
         ]
+        if self.package_id:
+            action['domain'] += [
+                '|',
+                    ('package_id', '=', self.package_id.id),
+                    ('result_package_id', '=', self.package_id.id),
+            ]
         action['context'] = literal_eval(action.get('context'))
         action['context']['search_default_product_id'] = self.product_id.id
         return action
@@ -605,11 +608,11 @@ class StockQuant(models.Model):
         product_id = product_id.sudo()
         location_id = location_id.sudo()
         if product_id.categ_id.removal_strategy_id:
-            return product_id.categ_id.removal_strategy_id.method
+            return product_id.categ_id.removal_strategy_id.with_context(lang=None).method
         loc = location_id
         while loc:
             if loc.removal_strategy_id:
-                return loc.removal_strategy_id.method
+                return loc.removal_strategy_id.with_context(lang=None).method
             loc = loc.location_id
         return 'fifo'
 

@@ -30,7 +30,7 @@ class PurchaseOrderLine(models.Model):
         compute='_compute_price_unit_and_date_planned_and_name',
         digits='Discount',
         store=True, readonly=False)
-    taxes_id = fields.Many2many('account.tax', string='Taxes', domain=['|', ('active', '=', False), ('active', '=', True)], context={'active_test': False})
+    taxes_id = fields.Many2many('account.tax', string='Taxes', context={'active_test': False})
     product_uom = fields.Many2one('uom.uom', string='Unit of Measure', domain="[('category_id', '=', product_uom_category_id)]")
     product_uom_category_id = fields.Many2one(related='product_id.uom_id.category_id')
     product_id = fields.Many2one('product.product', string='Product', domain=[('purchase_ok', '=', True)], change_default=True, index='btree_not_null')
@@ -482,7 +482,8 @@ class PurchaseOrderLine(models.Model):
         the product is read-only or not.
 
         A product is considered read-only if the order is considered read-only (see
-        ``PurchaseOrder._is_readonly`` for more details) or if `self` contains multiple records.
+        ``PurchaseOrder._is_readonly`` for more details) or if `self` contains multiple records
+        or if it has purchase_line_warn == "block".
 
         Note: This method cannot be called with multiple records that have different products linked.
 
@@ -496,6 +497,7 @@ class PurchaseOrderLine(models.Model):
                 'uom': dict,
                 'purchase_uom': dict,
                 'packaging': dict,
+                'warning': String,
             }
         """
         if len(self) == 1:
@@ -592,8 +594,9 @@ class PurchaseOrderLine(models.Model):
         product_taxes = product_id.supplier_taxes_id.filtered(lambda x: x.company_id.id == company_id.id)
         taxes = po.fiscal_position_id.map_tax(product_taxes)
 
+        price_unit = seller.price if seller else product_id.standard_price
         price_unit = self.env['account.tax']._fix_tax_included_price_company(
-            seller.price, product_taxes, taxes, company_id) if seller else 0.0
+            price_unit, product_taxes, taxes, company_id)
         if price_unit and seller and po.currency_id and seller.currency_id != po.currency_id:
             price_unit = seller.currency_id._convert(
                 price_unit, po.currency_id, po.company_id, po.date_order or fields.Date.today())

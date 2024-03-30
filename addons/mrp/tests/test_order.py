@@ -474,6 +474,29 @@ class TestMrpOrder(TestMrpCommon):
         wo.button_start()
         self.assertEqual(wo.qty_producing, 4, "Changing the qty_producing in the frontend is not persisted")
 
+    def test_recursive_work_orders(self):
+        """ When planning more than 322 work orders,
+            there is a recursion error
+            (with the default getrecursionlimit of 1000)
+        """
+        product_uom_id = self.env.ref('uom.product_uom_unit').id
+        mo_no_company = self.env['mrp.production'].create({
+            'product_id': self.product.id,
+            'product_uom_id': product_uom_id,
+        })
+        values = [
+            {
+                'name': f'Work order {n}',
+                'workcenter_id': self.workcenter_1.id,
+                'product_uom_id': product_uom_id,
+                'production_id': mo_no_company.id,
+                'duration': 60,
+            } for n in range(300)
+        ]
+        self.env['mrp.workorder'].create(values)
+        mo_no_company.action_confirm()
+        mo_no_company.button_plan()
+
     def test_update_quantity_5(self):
         bom = self.env['mrp.bom'].create({
             'product_id': self.product_6.id,
@@ -3349,6 +3372,34 @@ class TestMrpOrder(TestMrpCommon):
         ], ['company_id'], load=False, limit=1)
         self.assertEqual(mo_2.picking_type_id.id, picking_type_company[0]['id'])
 
+    def test_onchange_picking_type_id_and_name(self):
+        """
+        Test that when changing the operation type, the name of the MO should be changed too
+        """
+        picking_type_1 = self.env['stock.picking.type'].create({
+            'name': 'new_picking_type_1',
+            'code': 'mrp_operation',
+            'sequence_code': 'PT1',
+            'default_location_src_id': self.stock_location_components.id,
+            'default_location_dest_id': self.env.ref('stock.stock_location_stock').id,
+            'warehouse_id': self.warehouse_1.id,
+        })
+        picking_type_2 = picking_type_1.copy({
+            'name': 'new_picking_type_2',
+            'sequence_code': 'PT2'
+        })
+        mo_form = Form(self.env['mrp.production'])
+        mo_form.product_id = self.product_1
+        mo_form.picking_type_id = picking_type_1
+        mo = mo_form.save()
+        self.assertEqual(mo.name, "BWH/PT1/00001")
+        mo.picking_type_id = picking_type_2
+        self.assertEqual(mo.name, "BWH/PT2/00001")
+        mo.picking_type_id = picking_type_1
+        self.assertEqual(mo.name, "BWH/PT1/00002")
+        mo.picking_type_id = picking_type_1
+        self.assertEqual(mo.name, "BWH/PT1/00002")
+
     def test_onchange_bom_ids_and_picking_type(self):
         warehouse01 = self.env['stock.warehouse'].search([('company_id', '=', self.env.company.id)], limit=1)
         warehouse02, warehouse03 = self.env['stock.warehouse'].create([
@@ -3841,3 +3892,39 @@ class TestMrpOrder(TestMrpCommon):
         production.button_mark_done()
 
         self.assertEqual(production.workorder_ids.duration_expected, init_duration_expected + 5)
+
+    def test_multi_edit_start_date_wo(self):
+        """
+        Test setting the start date for multiple workorders, checking if the finish date
+        will be set too. As if the finish date is not set the planned workorder will not
+        be shown in planning gantt view
+        """
+        mo = self.env['mrp.production'].create({
+            'product_id': self.product.id,
+            'product_uom_id': self.bom_1.product_uom_id.id,
+        })
+
+        wos = self.env['mrp.workorder'].create([
+            {
+                'name': 'Test order',
+                'workcenter_id': self.workcenter_1.id,
+                'product_uom_id': self.bom_1.product_uom_id.id,
+                'production_id': mo.id,
+                'duration_expected': 1.0
+            },
+            {
+                'name': 'Test order2',
+                'workcenter_id': self.workcenter_2.id,
+                'product_uom_id': self.bom_1.product_uom_id.id,
+                'production_id': mo.id,
+                'duration_expected': 2.0
+            }
+        ])
+        dt = datetime(2024, 1, 17, 11)
+        wos.date_start = dt
+
+        self.assertEqual(wos[0].date_start, dt)
+        self.assertEqual(wos[1].date_start, dt)
+
+        self.assertEqual(wos[0].date_finished, dt + timedelta(hours=1, minutes=1))
+        self.assertEqual(wos[1].date_finished, dt + timedelta(hours=1, minutes=2))

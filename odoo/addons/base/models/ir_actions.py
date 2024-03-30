@@ -52,6 +52,7 @@ class IrActions(models.Model):
     _description = 'Actions'
     _table = 'ir_actions'
     _order = 'name'
+    _allow_sudo_commands = False
 
     name = fields.Char(string='Action Name', required=True, translate=True)
     type = fields.Char(string='Action Type', required=True)
@@ -85,10 +86,12 @@ class IrActions(models.Model):
         return res
 
     def unlink(self):
-        """unlink ir.action.todo which are related to actions which will be deleted.
+        """unlink ir.action.todo/ir.filters which are related to actions which will be deleted.
            NOTE: ondelete cascade will not work on ir.actions.actions so we will need to do it manually."""
         todos = self.env['ir.actions.todo'].search([('action_id', 'in', self.ids)])
         todos.unlink()
+        filters = self.env['ir.filters'].search([('action_id', 'in', self.ids)])
+        filters.unlink()
         res = super(IrActions, self).unlink()
         # self.get_bindings() depends on action records
         self.env.registry.clear_cache()
@@ -222,6 +225,7 @@ class IrActionsActWindow(models.Model):
     _table = 'ir_act_window'
     _inherit = 'ir.actions.actions'
     _order = 'name'
+    _allow_sudo_commands = False
 
     @api.constrains('res_model', 'binding_model_id')
     def _check_model(self):
@@ -355,6 +359,7 @@ class IrActionsActWindowView(models.Model):
     _table = 'ir_act_window_view'
     _rec_name = 'view_id'
     _order = 'sequence,id'
+    _allow_sudo_commands = False
 
     sequence = fields.Integer()
     view_id = fields.Many2one('ir.ui.view', string='View')
@@ -374,6 +379,7 @@ class IrActionsActWindowclose(models.Model):
     _description = 'Action Window Close'
     _inherit = 'ir.actions.actions'
     _table = 'ir_actions'
+    _allow_sudo_commands = False
 
     type = fields.Char(default='ir.actions.act_window_close')
 
@@ -391,6 +397,7 @@ class IrActionsActUrl(models.Model):
     _table = 'ir_act_url'
     _inherit = 'ir.actions.actions'
     _order = 'name'
+    _allow_sudo_commands = False
 
     type = fields.Char(default='ir.actions.act_url')
     url = fields.Text(string='Action URL', required=True)
@@ -446,6 +453,7 @@ class IrActionsServer(models.Model):
     _table = 'ir_act_server'
     _inherit = 'ir.actions.actions'
     _order = 'sequence,name'
+    _allow_sudo_commands = False
 
     DEFAULT_PYTHON_CODE = """# Available variables:
 #  - env: environment on which the action is triggered
@@ -916,7 +924,9 @@ class IrActionsServer(models.Model):
             eval_context = self._get_eval_context(action)
             records = eval_context.get('record') or eval_context['model']
             records |= eval_context.get('records') or eval_context['model']
-            if records:
+            if records.ids:
+                # check access rules on real records only; base automations of
+                # type 'onchange' can run server actions on new records
                 try:
                     records.check_access_rule('write')
                 except AccessError:
@@ -1018,6 +1028,7 @@ class IrActionsTodo(models.Model):
     _description = "Configuration Wizards"
     _rec_name = 'action_id'
     _order = "sequence, id"
+    _allow_sudo_commands = False
 
     action_id = fields.Many2one('ir.actions.actions', string='Action', required=True, index=True)
     sequence = fields.Integer(default=10)
@@ -1094,6 +1105,7 @@ class IrActionsActClient(models.Model):
     _inherit = 'ir.actions.actions'
     _table = 'ir_act_client'
     _order = 'name'
+    _allow_sudo_commands = False
 
     type = fields.Char(default='ir.actions.client')
 
