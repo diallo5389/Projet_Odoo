@@ -190,14 +190,17 @@
         <field name="model">domaines_proprietes_types</field>
         <field name="arch" type="xml">
             <form string="Domaines Properties Types">
-                <div class="oe_button_box" name="button_box"> 
+                <div class="d-flex justify-content-end">
                     <button name="%(domaines_proprietes_offers_action)d" 
-                        class="oe_stat_button"
-                        type="action"
-                        icon="fa-money">
-                        <field string="Offers" name="offer_count" widget="statinfo"/>
+                        class="oe_stat_button p-2 m-2 border"
+                        type="action">
+                        <i class="fa fa-money" style="font-size: 22px;"></i>
+                        <span class="m-2" style="font-size: 18px;">
+                            <field string="" name="offer_count" widget="statinfo" style="font-size: 19px;"/> Offre(s)
+                        </span>
                     </button>
-                </div>      
+                </div>              
+                <field name="name" style="font-size: 30px;"/>    
                 <field name="property_ids">
                     <tree default_order="expected_price desc">
                         <field name="name"/>
