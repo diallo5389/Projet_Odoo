@@ -2760,7 +2760,7 @@ msgstr "この決済方法を使用する場合、強制的に顧客を設定す
 
 #. module: point_of_sale
 #. odoo-javascript
-#: code:addons/point_of_sale/static/src/app/generic_components/orderline/orderline.xml:0
+#: code:addons/point_of_sale/static/src/app/store/models.js:0
 #, python-format
 msgid "Free"
 msgstr "無料"
@@ -3694,7 +3694,7 @@ msgstr "セッションにつき複数の従業員"
 #: code:addons/point_of_sale/static/src/app/screens/ticket_screen/ticket_screen.js:0
 #, python-format
 msgid "Multiple Invoiced Orders Selected"
-msgstr ""
+msgstr "複数の請求済オーダが選択されました"
 
 #. module: point_of_sale
 #: model:ir.model.fields,field_description:point_of_sale.field_pos_session__my_activity_date_deadline
@@ -6578,7 +6578,7 @@ msgstr "開始カテゴリは利用可能なカテゴリ内に属す必要があ
 #. module: point_of_sale
 #: model_terms:ir.ui.view,arch_db:point_of_sale.res_config_settings_view_form
 msgid "Start selling from a default product category"
-msgstr "セッション立ち上げ時にデフォルトカテゴリの製品を表示"
+msgstr "セッション立ち上げ時にデフォルトカテゴリのプロダクトを表示"
 
 #. module: point_of_sale
 #: model:ir.model.fields,field_description:point_of_sale.field_pos_session__cash_register_balance_start
@@ -8146,7 +8146,7 @@ msgstr "%s支払方法の\"顧客の特定\"オプションを有効にしまし
 msgid ""
 "You have selected orderlines from multiple invoiced orders. To proceed "
 "refund, please select orderlines from the same invoiced order."
-msgstr ""
+msgstr "複数の請求済オーダからオーダ明細を選択しました。払戻を続行するには、同じ請求のオーダからオーダ明細を選択して下さい。"
 
 #. module: point_of_sale
 #. odoo-javascript
@@ -8283,7 +8283,7 @@ msgstr "デモデータ"
 #: code:addons/point_of_sale/static/src/app/generic_components/orderline/orderline.xml:0
 #, python-format
 msgid "discount"
-msgstr "ディスカウント"
+msgstr "値引"
 
 #. module: point_of_sale
 #: model_terms:ir.ui.view,arch_db:point_of_sale.view_pos_combo_form

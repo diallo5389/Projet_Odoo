@@ -124,7 +124,7 @@ class PurchaseOrderLine(models.Model):
             line = line.with_company(line.company_id)
             fpos = line.order_id.fiscal_position_id or line.order_id.fiscal_position_id._get_fiscal_position(line.order_id.partner_id)
             # filter taxes by company
-            taxes = line.product_id.supplier_taxes_id.filtered_domain(self.env['account.tax']._check_company_domain(line.company_id))
+            taxes = line.product_id.supplier_taxes_id._filter_taxes_by_company(line.company_id)
             line.taxes_id = fpos.map_tax(taxes)
 
     @api.depends('discount', 'price_unit')
@@ -287,7 +287,7 @@ class PurchaseOrderLine(models.Model):
         self.product_uom = self.product_id.uom_po_id or self.product_id.uom_id
         product_lang = self.product_id.with_context(
             lang=get_lang(self.env, self.partner_id.lang).code,
-            partner_id=self.partner_id.id,
+            partner_id=None,
             company_id=self.company_id.id,
         )
         self.name = self._get_product_purchase_description(product_lang)
@@ -364,6 +364,8 @@ class PurchaseOrderLine(models.Model):
             # record product names to avoid resetting custom descriptions
             default_names = []
             vendors = line.product_id._prepare_sellers({})
+            product_ctx = {'seller_id': None, 'partner_id': None, 'lang': get_lang(line.env, line.partner_id.lang).code}
+            default_names.append(line._get_product_purchase_description(line.product_id.with_context(product_ctx)))
             for vendor in vendors:
                 product_ctx = {'seller_id': vendor.id, 'lang': get_lang(line.env, line.partner_id.lang).code}
                 default_names.append(line._get_product_purchase_description(line.product_id.with_context(product_ctx)))
@@ -591,7 +593,7 @@ class PurchaseOrderLine(models.Model):
             date=po.date_order and max(po.date_order.date(), today) or today,
             uom_id=product_id.uom_po_id)
 
-        product_taxes = product_id.supplier_taxes_id.filtered(lambda x: x.company_id.id == company_id.id)
+        product_taxes = product_id.supplier_taxes_id.filtered(lambda x: x.company_id in company_id.parent_ids)
         taxes = po.fiscal_position_id.map_tax(product_taxes)
 
         price_unit = seller.price if seller else product_id.standard_price

@@ -3770,7 +3770,7 @@ msgstr "Lebih dari Satu Karyawan per Sesi"
 #: code:addons/point_of_sale/static/src/app/screens/ticket_screen/ticket_screen.js:0
 #, python-format
 msgid "Multiple Invoiced Orders Selected"
-msgstr ""
+msgstr "Lebih Dari Satu Pesan Terfaktur Dipilih"
 
 #. module: point_of_sale
 #: model:ir.model.fields,field_description:point_of_sale.field_pos_session__my_activity_date_deadline
@@ -4261,7 +4261,7 @@ msgstr "Opening"
 #: code:addons/point_of_sale/static/src/app/store/cash_opening_popup/cash_opening_popup.xml:0
 #, python-format
 msgid "Opening Cash Control"
-msgstr "Membuka Kontrol Kas"
+msgstr "Opening Cash Control"
 
 #. module: point_of_sale
 #: model:ir.model.fields.selection,name:point_of_sale.selection__pos_session__state__opening_control
@@ -4698,7 +4698,7 @@ msgstr "Terminal-Terminal Pembayara"
 #. module: point_of_sale
 #: model:ir.model.fields,field_description:point_of_sale.field_pos_payment__transaction_id
 msgid "Payment Transaction ID"
-msgstr "ID Transaksi Pembayara"
+msgstr "ID Transaksi Pembayaran"
 
 #. module: point_of_sale
 #. odoo-javascript
@@ -8379,6 +8379,9 @@ msgid ""
 "You have selected orderlines from multiple invoiced orders. To proceed "
 "refund, please select orderlines from the same invoiced order."
 msgstr ""
+"Anda telah memilih baris pesanan dari lebih dari satu pesan terfaktur. Untuk"
+" melanjutkan refund, mohon pilih baris pesanan dari pesan terfaktur yang "
+"sama."
 
 #. module: point_of_sale
 #. odoo-javascript

@@ -5,7 +5,7 @@
 # Translators:
 # Ivana Bartonkova, 2023
 # Jakub Smolka, 2023
-# Wil Odoo, 2023
+# Wil Odoo, 2024
 # Aleš Fiala <f.ales1@seznam.cz>, 2024
 # 
 msgid ""
@@ -173,7 +173,7 @@ msgstr "Skrýt"
 #, python-format
 msgid ""
 "In order to manage stock accurately, subcontracting locations must be type "
-"Internal, linked to the appropriate company and not specific to a warehouse."
+"Internal, linked to the appropriate company."
 msgstr ""
 
 #. module: mrp_subcontracting
@@ -202,6 +202,13 @@ msgid ""
 "List of Products used in the BoM, used to filter the list of products in the"
 " subcontracting portal view"
 msgstr ""
+
+#. module: mrp_subcontracting
+#. odoo-python
+#: code:addons/mrp_subcontracting/models/stock_picking.py:0
+#, python-format
+msgid "Locations to update"
+msgstr "Lokace k aktualizaci"
 
 #. module: mrp_subcontracting
 #: model:ir.model.fields,field_description:mrp_subcontracting.field_res_partner__production_ids
@@ -627,6 +634,13 @@ msgstr ""
 #, python-format
 msgid "You cannot write on fields %s in mrp.production."
 msgstr ""
+
+#. module: mrp_subcontracting
+#. odoo-python
+#: code:addons/mrp_subcontracting/models/stock_picking.py:0
+#, python-format
+msgid "You might want to update the locations of this transfer's operations"
+msgstr "Možná jste chtěli aktualizovat umístění tohoto operátora přesunu"
 
 #. module: mrp_subcontracting
 #. odoo-python

@@ -123,6 +123,8 @@ This module provides the core of the Odoo Web Client.
             'web/static/src/start.js',
         ],
         'web.assets_frontend_minimal': [
+            'web/static/src/polyfills/object.js',
+            'web/static/src/polyfills/array.js',
             'web/static/src/module_loader.js',
             'web/static/src/session.js',
             'web/static/src/core/browser/cookie.js',
@@ -432,6 +434,7 @@ This module provides the core of the Odoo Web Client.
             'web/static/tests/dependencies_tests.js',
             'web/static/tests/reactivity_tests.js',
             'web/static/tests/core/**/*.js',
+            'web/static/tests/l10n/**/*.js',
             'web/static/tests/search/**/*.js',
             'web/static/tests/model/**/*.js',
             ('remove', 'web/static/tests/search/helpers.js'),

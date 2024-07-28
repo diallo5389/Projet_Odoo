@@ -1133,6 +1133,11 @@ msgid "Archived"
 msgstr "בארכיון"
 
 #. module: stock
+#: model_terms:ir.ui.view,arch_db:stock.view_picking_form
+msgid "Are you sure you want to cancel this transfer?"
+msgstr ""
+
+#. module: stock
 #: model:ir.model.fields.selection,name:stock.selection__stock_picking__move_type__direct
 msgid "As soon as possible"
 msgstr "בהקדם האפשרי"
@@ -4637,6 +4642,13 @@ msgid "Locations"
 msgstr "מיקומים"
 
 #. module: stock
+#. odoo-python
+#: code:addons/stock/models/stock_picking.py:0
+#, python-format
+msgid "Locations to update"
+msgstr ""
+
+#. module: stock
 #: model:ir.actions.server,name:stock.action_toggle_is_locked
 msgid "Lock/Unlock"
 msgstr ""
@@ -5365,7 +5377,7 @@ msgstr "מספר פעולות"
 #: model:ir.model.fields,field_description:stock.field_stock_move__next_serial_count
 #, python-format
 msgid "Number of SN"
-msgstr "מספר סידורי"
+msgstr "כמות סיריאלים"
 
 #. module: stock
 #: model:ir.model.fields,field_description:stock.field_stock_lot__message_has_error_counter
@@ -8131,7 +8143,7 @@ msgstr "מסמך מקור"
 #: model_terms:ir.ui.view,arch_db:stock.view_move_search
 #, python-format
 msgid "Source Location"
-msgstr "מקום המוצא"
+msgstr "מיקום מוצא"
 
 #. module: stock
 #: model:ir.model.fields,field_description:stock.field_stock_move__location_usage

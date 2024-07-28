@@ -813,7 +813,7 @@ class Picking(models.Model):
         })
         if self._origin.location_id != self.location_id and any(line.quantity for line in self.move_ids.move_line_ids):
             return {'warning': {
-                    'title': 'Locations to update',
+                    'title': _("Locations to update"),
                     'message': _("You might want to update the locations of this transfer's operations")
                     }
             }
@@ -1028,15 +1028,13 @@ class Picking(models.Model):
                 else:
                     move_lines_in_package_level = move_lines_to_pack.filtered(lambda ml: ml.move_id.package_level_id)
                     move_lines_without_package_level = move_lines_to_pack - move_lines_in_package_level
+                    if package.package_use == 'disposable':
+                        (move_lines_in_package_level | move_lines_without_package_level).result_package_id = package
+                    move_lines_in_package_level.result_package_id = package
                     for ml in move_lines_in_package_level:
-                        ml.write({
-                            'result_package_id': package.id,
-                            'package_level_id': ml.move_id.package_level_id.id,
-                        })
-                    move_lines_without_package_level.write({
-                        'result_package_id': package.id,
-                        'package_level_id': package_level_ids[0].id,
-                    })
+                        ml.package_level_id = ml.move_id.package_level_id.id
+                    move_lines_without_package_level.package_level_id = package_level_ids[0].id
+
                     for pl in package_level_ids:
                         pl.location_dest_id = pickings._get_entire_pack_location_dest(pl.move_line_ids) or pickings.location_dest_id.id
                     for move in move_lines_to_pack.move_id:
@@ -1181,10 +1179,12 @@ class Picking(models.Model):
             has_quantity = False
             has_pick = False
             for move in picking.move_ids:
-                if move.picked:
-                    has_pick = True
                 if move.quantity:
                     has_quantity = True
+                if move.scrapped:
+                    continue
+                if move.picked:
+                    has_pick = True
                 if has_quantity and has_pick:
                     break
             if has_quantity and not has_pick:
@@ -1462,7 +1462,10 @@ class Picking(models.Model):
                 'views': [(view_id, 'form')],
                 'type': 'ir.actions.act_window',
                 'res_id': wiz.id,
-                'target': 'new'
+                'target': 'new',
+                'context': {
+                    'move_lines_to_pack_ids': move_line_ids.ids,
+                }
             }
         else:
             return {}
@@ -1517,6 +1520,8 @@ class Picking(models.Model):
         move_line_ids = quantity_move_line_ids.filtered(lambda ml: ml.picked)
         if not move_line_ids:
             move_line_ids = quantity_move_line_ids
+        if self.env.context.get('move_lines_to_pack_ids', False):
+            move_line_ids = move_line_ids.filtered(lambda ml: ml.id in self.env.context['move_lines_to_pack_ids'])
         return move_line_ids
 
     def action_put_in_pack(self):
@@ -1527,7 +1532,6 @@ class Picking(models.Model):
                 res = self._pre_put_in_pack_hook(move_line_ids)
                 if not res:
                     package = self._put_in_pack(move_line_ids)
-                    self.action_assign()
                     return self._post_put_in_pack_hook(package)
                 return res
             raise UserError(_("There is nothing eligible to put in a pack. Either there are no quantities to put in a pack or all products are already in a pack."))

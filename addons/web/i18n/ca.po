@@ -24,11 +24,13 @@
 # Harcogourmet, 2023
 # Jonatan Gk, 2023
 # Arnau Ros, 2023
-# Óscar Fonseca <tecnico@pyming.com>, 2023
 # jabiri7, 2023
 # Ivan Espinola, 2023
 # Manel Fernandez Ramirez <manelfera@outlook.com>, 2024
 # Josep Anton Belchi, 2024
+# Óscar Fonseca <tecnico@pyming.com>, 2024
+# Santiago Payà <santiagopim@gmail.com>, 2024
+# Jaime Ruiz, 2024
 # 
 msgid ""
 msgstr ""
@@ -36,7 +38,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2024-01-29 10:46+0000\n"
 "PO-Revision-Date: 2023-10-26 23:09+0000\n"
-"Last-Translator: Josep Anton Belchi, 2024\n"
+"Last-Translator: Jaime Ruiz, 2024\n"
 "Language-Team: Catalan (https://app.transifex.com/odoo/teams/41243/ca/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -633,7 +635,7 @@ msgstr ""
 #. module: web
 #: model_terms:ir.ui.view,arch_db:web.report_invoice_wizard_preview
 msgid "<span id=\"line_tax_ids\">Tax 15%</span>"
-msgstr ""
+msgstr "<span id=\"line_tax_ids\">Impost 15%</span>"
 
 #. module: web
 #: model_terms:ir.ui.view,arch_db:web.report_invoice_wizard_preview
@@ -666,6 +668,8 @@ msgid ""
 "<span>Invoice</span>\n"
 "                           <span>INV/2023/00003</span>"
 msgstr ""
+"<span>Factura</span>\n"
+"                           <span>FAC/2023/00003</span>"
 
 #. module: web
 #: model_terms:ir.ui.view,arch_db:web.report_invoice_wizard_preview
@@ -749,7 +753,7 @@ msgstr "<strong>Total</strong>"
 #. module: web
 #: model_terms:ir.ui.view,arch_db:web.report_invoice_wizard_preview
 msgid "<strong>Untaxed Amount</strong>"
-msgstr ""
+msgstr "<strong>Import sense impostos</strong>"
 
 #. module: web
 #. odoo-javascript
@@ -1841,12 +1845,12 @@ msgstr ""
 
 #. module: web
 #. odoo-javascript
+#: code:addons/web/static/src/core/datetime/datetime_picker_popover.xml:0
 #: code:addons/web/static/src/core/debug/debug_menu_items.xml:0
 #: code:addons/web/static/src/core/debug/debug_menu_items.xml:0
 #: code:addons/web/static/src/core/dialog/dialog.xml:0
 #: code:addons/web/static/src/core/dialog/dialog.xml:0
 #: code:addons/web/static/src/core/domain_selector_dialog/domain_selector_dialog.xml:0
-#: code:addons/web/static/src/core/errors/error_dialogs.xml:0
 #: code:addons/web/static/src/core/errors/error_dialogs.xml:0
 #: code:addons/web/static/src/core/errors/error_dialogs.xml:0
 #: code:addons/web/static/src/core/errors/error_dialogs.xml:0
@@ -2221,7 +2225,7 @@ msgstr "Crear %s"
 #: code:addons/web/static/src/views/fields/many2one/many2one_field.js:0
 #, python-format
 msgid "Create <strong>%s</strong> as a new %s?"
-msgstr ""
+msgstr "Crear  <strong>%s</strong> com a nou %s?"
 
 #. module: web
 #. odoo-javascript
@@ -2541,7 +2545,7 @@ msgstr "Eines per a desenvolupadors"
 #: code:addons/web/static/src/views/list/list_renderer.js:0
 #, python-format
 msgid "Different currencies cannot be aggregated"
-msgstr ""
+msgstr "No es poden agregar diferents monedes"
 
 #. module: web
 #. odoo-javascript
@@ -3452,6 +3456,10 @@ msgid ""
 "click the <i class=\"fa fa-cloud-upload fa-fw\"></i> button now to ensure "
 "your work is saved before you exit this tab."
 msgstr ""
+"Atenció! Els teus canvis recents són massa grans per guardar-se "
+"automàticament. Si us plau, fes clic al botó <i class=\"fa fa-cloud-upload "
+"fa-fw\"></i> ara per assegurar-te que la teva feina es guarda abans de "
+"sortir d'aquesta pestanya."
 
 #. module: web
 #. odoo-javascript
@@ -3556,7 +3564,7 @@ msgstr "ILY"
 #: code:addons/web/static/src/views/fields/datetime/datetime_field.js:0
 #: code:addons/web/static/src/views/fields/datetime/datetime_field.js:0
 #, python-format
-msgid "ISO-formatted date (e.g. \"2018-12-31\") or \"today\"."
+msgid "ISO-formatted date (e.g. \"2018-12-31\") or \"%s\"."
 msgstr ""
 
 #. module: web
@@ -3753,7 +3761,7 @@ msgstr "Camps no vàlids:"
 #: code:addons/web/controllers/domain.py:0
 #, python-format
 msgid "Invalid model: %s"
-msgstr ""
+msgstr "Model invàlid: %s"
 
 #. module: web
 #. odoo-javascript
@@ -3775,7 +3783,7 @@ msgstr ""
 #: code:addons/web/static/src/webclient/settings_form_view/widgets/res_config_invite_users.js:0
 #, python-format
 msgid "Invite"
-msgstr "Invitar"
+msgstr "Convidar"
 
 #. module: web
 #. odoo-javascript
@@ -3794,7 +3802,7 @@ msgstr "Convidant..."
 #. module: web
 #: model:ir.model.fields,field_description:web.field_base_document_layout__is_company_details_empty
 msgid "Is Company Details Empty"
-msgstr ""
+msgstr "Les dades de l'empresa estan buides"
 
 #. module: web
 #. odoo-javascript
@@ -5052,6 +5060,13 @@ msgstr "Estat no actiu, fes clic per canviar-ho"
 
 #. module: web
 #. odoo-javascript
+#: code:addons/web/static/src/views/fields/many2many_binary/many2many_binary_field.js:0
+#, python-format
+msgid "Number of files"
+msgstr ""
+
+#. module: web
+#. odoo-javascript
 #: code:addons/web/static/src/core/emoji_picker/emoji_data.js:0
 #: code:addons/web/static/src/core/emoji_picker/emoji_data.js:0
 #, python-format
@@ -5167,8 +5182,8 @@ msgid ""
 "Odoo Push notifications have been blocked. Go to your browser settings to "
 "allow them."
 msgstr ""
-"S' han bloquejat les notificacions Odoo Push. Aneu al vostre arranjament del"
-" navegador per a permetre- los."
+"S' han bloquejat les notificacions Odoo Push. Aneu a la configuració del "
+"navegador per a permetre'ls."
 
 #. module: web
 #. odoo-javascript
@@ -5318,7 +5333,7 @@ msgstr "Obrir vista"
 #: code:addons/web/static/src/core/debug/debug_menu.xml:0
 #, python-format
 msgid "Open developer tools"
-msgstr ""
+msgstr "Obre les eines de desenvolupador"
 
 #. module: web
 #. odoo-javascript
@@ -6133,7 +6148,7 @@ msgstr "Reinicia el zoom (0)"
 #: code:addons/web/static/src/core/domain_selector/domain_selector.xml:0
 #, python-format
 msgid "Reset domain"
-msgstr ""
+msgstr "Restableix el domini"
 
 #. module: web
 #. odoo-javascript
@@ -6890,6 +6905,7 @@ msgstr "samarreta"
 
 #. module: web
 #. odoo-javascript
+#: code:addons/web/static/src/core/commands/command_items.xml:0
 #: code:addons/web/static/src/webclient/user_menu/user_menu_items.xml:0
 #, python-format
 msgid "TIP"
@@ -7074,6 +7090,7 @@ msgstr ""
 #, python-format
 msgid "The selected file (%sB) is over the maximum allowed file size (%sB)."
 msgstr ""
+"El fitxer seleccionat (%sB) supera la mida màxima permesa de fitxer(%sB)."
 
 #. module: web
 #. odoo-javascript
@@ -7083,16 +7100,6 @@ msgid ""
 "The style compilation failed. This is an administrator or developer error "
 "that must be fixed for the entire database before continuing working. See "
 "browser console or server logs for details."
-msgstr ""
-
-#. module: web
-#. odoo-javascript
-#: code:addons/web/static/src/core/errors/error_dialogs.xml:0
-#, python-format
-msgid ""
-"The style compilation failed, see the error below. This is an administrator "
-"or developer error that must be fixed for the entire database before "
-"continuing working."
 msgstr ""
 
 #. module: web
@@ -8558,6 +8565,7 @@ msgstr "àncora"
 
 #. module: web
 #. odoo-javascript
+#: code:addons/web/static/src/core/commands/command_items.xml:0
 #: code:addons/web/static/src/core/domain_selector/utils.js:0
 #: code:addons/web/static/src/core/tree_editor/utils.js:0
 #, python-format
@@ -19167,7 +19175,7 @@ msgstr "és entre"
 #: code:addons/web/static/src/core/tree_editor/tree_editor_operator_editor.js:0
 #, python-format
 msgid "is in"
-msgstr ""
+msgstr "és dins"
 
 #. module: web
 #. odoo-javascript
@@ -19181,7 +19189,7 @@ msgstr "no és"
 #: code:addons/web/static/src/core/tree_editor/tree_editor_operator_editor.js:0
 #, python-format
 msgid "is not in"
-msgstr ""
+msgstr "no és dins"
 
 #. module: web
 #. odoo-javascript
@@ -21774,7 +21782,7 @@ msgstr "meló"
 #: code:addons/web/static/src/core/emoji_picker/emoji_data.js:0
 #, python-format
 msgid "memo"
-msgstr "memoràndum"
+msgstr "Anotació"
 
 #. module: web
 #. odoo-javascript
@@ -22807,7 +22815,7 @@ msgstr "cara de lluna nova"
 #: code:addons/web/static/src/core/commands/command_palette.xml:0
 #, python-format
 msgid "new tab"
-msgstr ""
+msgstr "nova pestanya"
 
 #. module: web
 #. odoo-javascript
@@ -24664,7 +24672,7 @@ msgstr "persona que pren bany"
 #: code:addons/web/static/src/core/emoji_picker/emoji_data.js:0
 #, python-format
 msgid "person tipping hand"
-msgstr "persona que apunta a la mà"
+msgstr "persona amb la palma cap amunt"
 
 #. module: web
 #. odoo-javascript
@@ -33537,6 +33545,13 @@ msgstr "zombi"
 #, python-format
 msgid "— press"
 msgstr "— pressiona"
+
+#. module: web
+#. odoo-javascript
+#: code:addons/web/static/src/core/commands/command_items.xml:0
+#, python-format
+msgid "— search for"
+msgstr "— cerca per"
 
 #. module: web
 #. odoo-javascript

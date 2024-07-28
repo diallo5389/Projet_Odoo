@@ -3,9 +3,9 @@
 # 	* web
 # 
 # Translators:
-# Larissa Manderfeld, 2024
 # Martin Trigaux, 2024
 # Wil Odoo, 2024
+# Larissa Manderfeld, 2024
 # 
 msgid ""
 msgstr ""
@@ -13,7 +13,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2024-01-29 10:46+0000\n"
 "PO-Revision-Date: 2023-10-26 23:09+0000\n"
-"Last-Translator: Wil Odoo, 2024\n"
+"Last-Translator: Larissa Manderfeld, 2024\n"
 "Language-Team: German (https://app.transifex.com/odoo/teams/41243/de/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -1830,12 +1830,12 @@ msgstr "Anklickbar"
 
 #. module: web
 #. odoo-javascript
+#: code:addons/web/static/src/core/datetime/datetime_picker_popover.xml:0
 #: code:addons/web/static/src/core/debug/debug_menu_items.xml:0
 #: code:addons/web/static/src/core/debug/debug_menu_items.xml:0
 #: code:addons/web/static/src/core/dialog/dialog.xml:0
 #: code:addons/web/static/src/core/dialog/dialog.xml:0
 #: code:addons/web/static/src/core/domain_selector_dialog/domain_selector_dialog.xml:0
-#: code:addons/web/static/src/core/errors/error_dialogs.xml:0
 #: code:addons/web/static/src/core/errors/error_dialogs.xml:0
 #: code:addons/web/static/src/core/errors/error_dialogs.xml:0
 #: code:addons/web/static/src/core/errors/error_dialogs.xml:0
@@ -2252,7 +2252,7 @@ msgstr "Erstellungsbenutzer:"
 #: code:addons/web/static/src/views/graph/graph_controller.xml:0
 #, python-format
 msgid "Cumulative"
-msgstr "Kumulativ"
+msgstr "Kumuliert"
 
 #. module: web
 #. odoo-javascript
@@ -3571,8 +3571,8 @@ msgstr "ILD"
 #: code:addons/web/static/src/views/fields/datetime/datetime_field.js:0
 #: code:addons/web/static/src/views/fields/datetime/datetime_field.js:0
 #, python-format
-msgid "ISO-formatted date (e.g. \"2018-12-31\") or \"today\"."
-msgstr "ISO-formatiertes Datum (z. B. „2018-12-31“) oder „heute“."
+msgid "ISO-formatted date (e.g. \"2018-12-31\") or \"%s\"."
+msgstr "ISO-formatiertes Datum (z. B. „2018-12-31“) oder „%s“."
 
 #. module: web
 #. odoo-javascript
@@ -5079,6 +5079,13 @@ msgstr "Nicht aktiver Zustand"
 #, python-format
 msgid "Not active state, click to change it"
 msgstr "Nicht aktiver Zustand, anklicken, um ihn zu ändern"
+
+#. module: web
+#. odoo-javascript
+#: code:addons/web/static/src/views/fields/many2many_binary/many2many_binary_field.js:0
+#, python-format
+msgid "Number of files"
+msgstr "Anzahl Dateien"
 
 #. module: web
 #. odoo-javascript
@@ -6932,6 +6939,7 @@ msgstr "T-Shirt"
 
 #. module: web
 #. odoo-javascript
+#: code:addons/web/static/src/core/commands/command_items.xml:0
 #: code:addons/web/static/src/webclient/user_menu/user_menu_items.xml:0
 #, python-format
 msgid "TIP"
@@ -7031,7 +7039,7 @@ msgstr "Stier"
 #: model_terms:ir.ui.view,arch_db:web.external_layout_standard
 #: model_terms:ir.ui.view,arch_db:web.external_layout_striped
 msgid "Tax ID"
-msgstr "USt-IdNr"
+msgstr "USt-IdNr."
 
 #. module: web
 #. odoo-javascript
@@ -7132,19 +7140,6 @@ msgstr ""
 "oder Entwicklerfehler, der für die gesamte Datenbank behoben werden muss, "
 "bevor Sie weiterarbeiten können. Einzelheiten finden Sie in der Web-Konsole "
 "oder in den Serverprotokollen."
-
-#. module: web
-#. odoo-javascript
-#: code:addons/web/static/src/core/errors/error_dialogs.xml:0
-#, python-format
-msgid ""
-"The style compilation failed, see the error below. This is an administrator "
-"or developer error that must be fixed for the entire database before "
-"continuing working."
-msgstr ""
-"Die Kompilierung des Stils ist fehlgeschlagen, siehe den unten stehenden "
-"Fehler. Dies ist ein Administrator- oder Entwicklerfehler, der für die "
-"gesamte Datenbank behoben werden muss, bevor Sie weiterarbeiten können."
 
 #. module: web
 #. odoo-python
@@ -8631,6 +8626,7 @@ msgstr "Anker"
 
 #. module: web
 #. odoo-javascript
+#: code:addons/web/static/src/core/commands/command_items.xml:0
 #: code:addons/web/static/src/core/domain_selector/utils.js:0
 #: code:addons/web/static/src/core/tree_editor/utils.js:0
 #, python-format
@@ -33611,6 +33607,13 @@ msgstr "Zombie"
 #, python-format
 msgid "— press"
 msgstr "— Drücken Sie"
+
+#. module: web
+#. odoo-javascript
+#: code:addons/web/static/src/core/commands/command_items.xml:0
+#, python-format
+msgid "— search for"
+msgstr "— Suche nach"
 
 #. module: web
 #. odoo-javascript

@@ -11,8 +11,8 @@
 # Tomáš Píšek, 2023
 # Marek Záda, 2024
 # Katerina Horylova, 2024
-# Jakub Smolka, 2024
 # Wil Odoo, 2024
+# Jakub Smolka, 2024
 # Aleš Fiala <f.ales1@seznam.cz>, 2024
 # 
 msgid ""
@@ -2804,7 +2804,7 @@ msgstr ""
 
 #. module: point_of_sale
 #. odoo-javascript
-#: code:addons/point_of_sale/static/src/app/generic_components/orderline/orderline.xml:0
+#: code:addons/point_of_sale/static/src/app/store/models.js:0
 #, python-format
 msgid "Free"
 msgstr "Zdarma"
@@ -4139,7 +4139,7 @@ msgstr ""
 #: code:addons/point_of_sale/models/pos_config.py:0
 #, python-format
 msgid "Only administrators can edit receipt headers and footers"
-msgstr ""
+msgstr "Záhlaví a zápatí účtenek mohou upravovat pouze správci"
 
 #. module: point_of_sale
 #: model:ir.model.fields,field_description:point_of_sale.field_pos_config__only_round_cash_method
@@ -6274,7 +6274,7 @@ msgstr "Prodávejte produkty a dodávejte je později."
 #: code:addons/point_of_sale/static/src/app/screens/payment_screen/payment_lines/payment_lines.xml:0
 #, python-format
 msgid "Send"
-msgstr "Odchozí"
+msgstr "Odeslat"
 
 #. module: point_of_sale
 #. odoo-javascript

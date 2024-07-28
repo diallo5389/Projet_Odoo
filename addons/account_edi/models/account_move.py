@@ -264,7 +264,8 @@ class AccountMove(models.Model):
 
         self.env['account.edi.document'].create(edi_document_vals_list)
         posted.edi_document_ids._process_documents_no_web_services()
-        self.env.ref('account_edi.ir_cron_edi_network')._trigger()
+        if not self.env.context.get('skip_account_edi_cron_trigger'):
+            self.env.ref('account_edi.ir_cron_edi_network')._trigger()
         return posted
 
     def button_cancel(self):
@@ -329,7 +330,7 @@ class AccountMove(models.Model):
             if is_move_marked:
                 move.message_post(body=_("A request for cancellation of the EDI has been called off."))
 
-        documents.write({'state': 'sent'})
+        documents.write({'state': 'sent', 'error': False, 'blocking_level': False})
 
     def _get_edi_document(self, edi_format):
         return self.edi_document_ids.filtered(lambda d: d.edi_format_id == edi_format)

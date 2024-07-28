@@ -3,8 +3,8 @@
 # 	* web
 # 
 # Translators:
-# Abe Manyo, 2024
 # Martin Trigaux, 2024
+# Abe Manyo, 2024
 # Wil Odoo, 2024
 # 
 msgid ""
@@ -1825,12 +1825,12 @@ msgstr "Clickable"
 
 #. module: web
 #. odoo-javascript
+#: code:addons/web/static/src/core/datetime/datetime_picker_popover.xml:0
 #: code:addons/web/static/src/core/debug/debug_menu_items.xml:0
 #: code:addons/web/static/src/core/debug/debug_menu_items.xml:0
 #: code:addons/web/static/src/core/dialog/dialog.xml:0
 #: code:addons/web/static/src/core/dialog/dialog.xml:0
 #: code:addons/web/static/src/core/domain_selector_dialog/domain_selector_dialog.xml:0
-#: code:addons/web/static/src/core/errors/error_dialogs.xml:0
 #: code:addons/web/static/src/core/errors/error_dialogs.xml:0
 #: code:addons/web/static/src/core/errors/error_dialogs.xml:0
 #: code:addons/web/static/src/core/errors/error_dialogs.xml:0
@@ -3563,8 +3563,8 @@ msgstr "ILY"
 #: code:addons/web/static/src/views/fields/datetime/datetime_field.js:0
 #: code:addons/web/static/src/views/fields/datetime/datetime_field.js:0
 #, python-format
-msgid "ISO-formatted date (e.g. \"2018-12-31\") or \"today\"."
-msgstr "Tanggal dengan format ISO (contoh. \"2018-12-31\") atau \"today\"."
+msgid "ISO-formatted date (e.g. \"2018-12-31\") or \"%s\"."
+msgstr "Tanggal format ISO (contoh \"2018-12-31\") atau \"%s\"."
 
 #. module: web
 #. odoo-javascript
@@ -5068,6 +5068,13 @@ msgstr "Status tidak aktif"
 #, python-format
 msgid "Not active state, click to change it"
 msgstr "Status tidak aktif, klik untuk mengubah"
+
+#. module: web
+#. odoo-javascript
+#: code:addons/web/static/src/views/fields/many2many_binary/many2many_binary_field.js:0
+#, python-format
+msgid "Number of files"
+msgstr "Jumlah file"
 
 #. module: web
 #. odoo-javascript
@@ -6914,6 +6921,7 @@ msgstr "T-shirt"
 
 #. module: web
 #. odoo-javascript
+#: code:addons/web/static/src/core/commands/command_items.xml:0
 #: code:addons/web/static/src/webclient/user_menu/user_menu_items.xml:0
 #, python-format
 msgid "TIP"
@@ -7110,19 +7118,6 @@ msgstr ""
 "Kompilasi style gagal. Ini adalah error administrator atau developer yang "
 "harus dibetulkan untuk seluruh database sebelum melanjutkan kerja. Lihat "
 "console browser atau log server untuk detail"
-
-#. module: web
-#. odoo-javascript
-#: code:addons/web/static/src/core/errors/error_dialogs.xml:0
-#, python-format
-msgid ""
-"The style compilation failed, see the error below. This is an administrator "
-"or developer error that must be fixed for the entire database before "
-"continuing working."
-msgstr ""
-"Kompilasi style gagal, lihat error di bawah. Ini adalah error administrator "
-"atau developer yang harus dibetulkan untuk seluruh database sebelum "
-"melanjutkan kerja."
 
 #. module: web
 #. odoo-python
@@ -8594,6 +8589,7 @@ msgstr "anchor"
 
 #. module: web
 #. odoo-javascript
+#: code:addons/web/static/src/core/commands/command_items.xml:0
 #: code:addons/web/static/src/core/domain_selector/utils.js:0
 #: code:addons/web/static/src/core/tree_editor/utils.js:0
 #, python-format
@@ -33572,6 +33568,13 @@ msgstr "zombie"
 #, python-format
 msgid "— press"
 msgstr "— pencet"
+
+#. module: web
+#. odoo-javascript
+#: code:addons/web/static/src/core/commands/command_items.xml:0
+#, python-format
+msgid "— search for"
+msgstr "— cari"
 
 #. module: web
 #. odoo-javascript

@@ -116,7 +116,7 @@ class AccountMove(models.Model):
     def _compute_l10n_it_partner_pa(self):
         for move in self:
             partner = move.commercial_partner_id
-            move.l10n_it_partner_pa = partner and partner._l10n_it_edi_is_public_administration()
+            move.l10n_it_partner_pa = partner and (partner._l10n_it_edi_is_public_administration() or len(partner.l10n_it_pa_index or '') == 7)
 
     @api.depends('move_type', 'line_ids.tax_tag_ids')
     def _compute_l10n_it_edi_is_self_invoice(self):
@@ -242,20 +242,34 @@ class AccountMove(models.Model):
         """
         invoice_lines = []
         lines = self.invoice_line_ids.filtered(lambda l: l.display_type not in ('line_note', 'line_section'))
-        for num, line in enumerate(lines):
-            sign = -1 if line.move_id.is_inbound() else 1
-            price_subtotal = (line.balance * sign) if convert_to_euros else line.price_subtotal
-            # The price_subtotal should be inverted when the line is a reverse charge refund.
-            if reverse_charge_refund:
-                price_subtotal = -price_subtotal
-
-            # Unit price
-            price_unit = 0
-            if line.quantity and line.discount != 100.0:
-                price_unit = price_subtotal / ((1 - (line.discount or 0.0) / 100.0) * abs(line.quantity))
+        base_lines = [invl._convert_to_tax_base_line_dict() for invl in lines]
+        inverse_factor = (-1 if reverse_charge_refund else 1)
+        for num, line in enumerate(base_lines):
+            line['sequence'] = num
+            line['price_subtotal'] = line['price_subtotal'] * inverse_factor
+            if line['discount'] != 100.0 and line['quantity']:
+                gross_price = line['price_subtotal'] / (1 - line['discount'] / 100.0)
+                line['discount_amount_before_dispatching'] = (gross_price - line['price_subtotal']) * inverse_factor
+                line['gross_price_subtotal'] = line['currency'].round(gross_price * inverse_factor)
+                line['price_unit'] = gross_price / abs(line['quantity'])
             else:
-                price_unit = line.price_unit
+                line['gross_price_subtotal'] = line['currency'].round(line['price_unit'] * line['quantity'])
+                line['discount_amount_before_dispatching'] = line['gross_price_subtotal']
 
+        template = self.env['ir.qweb']._load('l10n_it_edi.account_invoice_line_it_FatturaPA')[0]
+        flat_discount_element = template.find('.//ScontoMaggiorazione/Percentuale')
+        if flat_discount_element is not None:
+            dispatch_result = self.env['account.tax']._dispatch_negative_lines(base_lines)
+            if dispatch_result['orphan_negative_lines']:
+                raise UserError(_("You have negative lines that we can't dispatch on others. They need to have the same tax."))
+            base_lines = sorted(dispatch_result['result_lines'] + dispatch_result['nulled_candidate_lines'], key=lambda line: line['sequence'])
+        else:
+            # The template needs to be updated to be able to handle negative lines
+            if any(line['price_subtotal'] < 0 for line in base_lines):
+                raise UserError(_("To handle negative lines, we need you to update your module 'Italy - E-invoicing'"))
+
+        for num, line_dict in enumerate(base_lines):
+            line = line_dict['record']
             description = line.name
 
             # Down payment lines:
@@ -273,8 +287,9 @@ class AccountMove(models.Model):
                 'line': line,
                 'line_number': num + 1,
                 'description': description or 'NO NAME',
-                'unit_price': price_unit,
-                'subtotal_price': price_subtotal,
+                'subtotal_price': (line_dict['gross_price_subtotal'] - line_dict['discount_amount']) * inverse_factor,
+                'unit_price': line_dict['price_unit'],
+                'discount_amount': ((line_dict['discount_amount'] - line_dict['discount_amount_before_dispatching']) / line.quantity) if line.quantity else 0,
                 'vat_tax': line.tax_ids.flatten_taxes_hierarchy().filtered(lambda t: t._l10n_it_filter_kind('vat') and t.amount >= 0),
                 'downpayment_moves': downpayment_moves,
                 'discount_type': (
@@ -440,7 +455,7 @@ class AccountMove(models.Model):
             if tax_ids_with_tax_scope:
                 scopes += tax_ids_with_tax_scope.mapped('tax_scope')
             else:
-                scopes.append(line.product_id and line.product_id.type or 'consu')
+                scopes.append(line.product_id and line.product_id.type == 'service' and 'service' or 'consu')
 
         if set(scopes) == {'consu', 'service'}:
             return "both"
@@ -688,7 +703,7 @@ class AccountMove(models.Model):
             ):
                 self.env.cr.commit()
                 moves |= move
-                proxy_acks.append(id_transaction)
+            proxy_acks.append(id_transaction)
 
         # Extend created moves with the related attachments and commit
         for move in moves:
@@ -1097,9 +1112,9 @@ class AccountMove(models.Model):
 
         # Discounts
         if elements := element.xpath('.//ScontoMaggiorazione'):
-            element = elements[0]
             # Special case of only 1 percentage discount
             if len(elements) == 1:
+                element = elements[0]
                 if discount_percentage := get_float(element, './/Percentuale'):
                     discount_type = get_text(element, './/Tipo')
                     discount_sign = -1 if discount_type == 'MG' else 1
@@ -1168,13 +1183,17 @@ class AccountMove(models.Model):
             errors['move_reverse_charge_with_mixed_services_and_goods'] = build_error(
                 message=_("Cannot apply Reverse Charge to bills which contains both services and goods."),
                 records=moves)
-        if pa_moves := self.filtered(lambda move: move.company_id.partner_id._l10n_it_edi_is_public_administration()):
-            if moves := pa_moves.filtered(lambda move: move.l10n_it_origin_document_type):
-                message = _("Your company belongs to the Public Administration, please fill out Origin Document Type field in the Electronic Invoicing tab.")
+        if pa_moves := self.filtered(lambda move: move.commercial_partner_id._l10n_it_edi_is_public_administration()):
+            if moves := pa_moves.filtered(lambda move: not move.l10n_it_origin_document_type):
+                message = _("Partner(s) belongs to the Public Administration, please fill out Origin Document Type field in the Electronic Invoicing tab.")
                 errors['move_missing_origin_document'] = build_error(message=message, records=moves)
             if moves := pa_moves.filtered(lambda move: move.l10n_it_origin_document_date and move.l10n_it_origin_document_date > fields.Date.today()):
                 message = _("The Origin Document Date cannot be in the future.")
                 errors['move_future_origin_document_date'] = build_error(message=message, records=moves)
+        if pa_moves := self.filtered(lambda move: len(move.commercial_partner_id.l10n_it_pa_index or '') == 7):
+            if moves := pa_moves.filtered(lambda move: not move.l10n_it_origin_document_type and move.l10n_it_cig and move.l10n_it_cup):
+                message = _("CIG/CUP fields of partner(s) are present, please fill out Origin Document Type field in the Electronic Invoicing tab.")
+                errors['move_missing_origin_document_field'] = build_error(message=message, records=moves)
         return errors
 
     def _l10n_it_edi_export_taxes_check(self):

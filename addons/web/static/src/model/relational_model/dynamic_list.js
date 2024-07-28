@@ -250,7 +250,8 @@ export class DynamicList extends DataPoint {
             );
             this.model.notification.add(msg, { title: _t("Warning") });
         }
-        await this._removeRecords(records.map((r) => r.id));
+        this._removeRecords(records.map((r) => r.id));
+        await this._load(this.offset, this.limit, this.orderBy, this.domain);
         return unlinked;
     }
 
@@ -284,6 +285,7 @@ export class DynamicList extends DataPoint {
             this.model.dialog.add(AlertDialog, {
                 body: _t("No valid record to save"),
                 confirm: () => this.leaveEditMode({ discard: true }),
+                dismiss: () => this.leaveEditMode({ discard: true }),
             });
             return false;
         } else {
@@ -349,6 +351,8 @@ export class DynamicList extends DataPoint {
             }
         }
 
+        // Save the original list in case of error
+        const originalOrder = [...originalList];
         // Perform the resequence in the list of records/groups
         const [dp] = originalList.splice(fromIndex, 1);
         originalList.splice(toIndex, 0, dp);
@@ -381,9 +385,16 @@ export class DynamicList extends DataPoint {
         if (offset) {
             params.offset = offset;
         }
-        const wasResequenced = await this.model.rpc("/web/dataset/resequence", params);
-        if (!wasResequenced) {
-            return;
+        // Attempt to resequence the records/groups on the server
+        try {
+            const wasResequenced = await this.model.rpc("/web/dataset/resequence", params);
+            if (!wasResequenced) {
+                return;
+            }
+        } catch (error) {
+            // If the server fails to resequence, rollback the original list
+            originalList.splice(0, originalList.length, ...originalOrder);
+            throw error;
         }
 
         // Read the actual values set by the server and update the records/groups

@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
+import odoo.tests
 from odoo.tests import Form
 from odoo.tests.common import TransactionCase
 from odoo.tools import float_round
@@ -770,6 +771,41 @@ class TestPacking(TestPackingCommon):
 
         pick_picking.move_line_ids.quantity = 3
         first_pack = pick_picking.action_put_in_pack()
+
+    def test_serial_partial_put_in_pack(self):
+        """ Create a simple delivery order with a serial tracked product. Then split the move lines into two
+         different packages. """
+        self.productA.tracking = 'serial'
+        self.warehouse.delivery_steps = 'ship_only'
+        serials = self.env['stock.lot'].create([{
+            'product_id': self.productA.id,
+            'name': f'SN{i}',
+            'company_id': self.warehouse.company_id.id
+        } for i in range(1, 6)])
+        for serial in serials:
+            self.env['stock.quant']._update_available_quantity(self.productA, self.stock_location, 1.0, lot_id=serial)
+
+        picking = self.env['stock.picking'].create({
+            'picking_type_id': self.warehouse.out_type_id.id,
+        })
+        picking_form = Form(picking)
+        with picking_form.move_ids_without_package.new() as move:
+            move.product_id = self.productA
+            move.product_uom_qty = 5.0
+        picking = picking_form.save()
+
+        picking.action_confirm()
+        picking.action_assign()
+        move_lines = picking.move_line_ids
+        mls_part_1, mls_part_2 = move_lines[:3], move_lines[3:]
+        mls_part_1.action_put_in_pack()
+
+        self.assertEqual(len(mls_part_1.result_package_id), 1, 'First three move lines should be assigned a destination package')
+        self.assertEqual(len(mls_part_2.result_package_id), 0, 'Other move lines should not be affected')
+
+        mls_part_2.action_put_in_pack()
+        self.assertEqual(len(mls_part_2.result_package_id), 1, 'Other move lines should be assigned a package now')
+        self.assertNotEqual(mls_part_1.result_package_id, mls_part_2.result_package_id, 'There should be two different packages')
 
     def test_action_assign_package_level(self):
         """calling _action_assign on move does not erase lines' "result_package_id"
@@ -1702,3 +1738,98 @@ class TestPacking(TestPackingCommon):
         (picking1 | picking2).with_context(default_picking_type_id=self.ref('stock.picking_type_out'))._compute_hide_picking_type()
         self.assertTrue(picking1.hide_picking_type)
         self.assertFalse(picking2.hide_picking_type)
+
+    def test_put_in_pack_partial_different_destinations(self):
+        """ Test putting some of the move lines of a pikcing with different destinations in a package """
+        self.productA.tracking = 'serial'
+
+        picking = self.env['stock.picking'].create({
+            'picking_type_id': self.warehouse.in_type_id.id,
+        })
+        picking_form = Form(picking)
+        with picking_form.move_ids_without_package.new() as move:
+            move.product_id = self.productA
+            move.product_uom_qty = 5.0
+        picking = picking_form.save()
+        picking.action_confirm()
+
+        serial_wizard_dict = picking.move_ids_without_package.action_assign_serial()
+        serial_wizard = self.env[serial_wizard_dict['res_model']].with_context(serial_wizard_dict['context']).create({
+            'next_serial_number': '1',
+            'next_serial_count': 5,
+        })
+        serial_wizard.generate_serial_numbers()
+
+        self.assertItemsEqual(picking.move_line_ids.mapped('quantity'), [1.0] * 5)
+
+        sub_location = self.env['stock.location'].create({
+            'name': 'Sub Location',
+            'location_id': self.stock_location.id,
+        })
+        picking.move_line_ids[0].location_dest_id = sub_location
+
+        destination_wizard_dict = picking.move_line_ids[0:2].action_put_in_pack()
+        destination_wizard = self.env[destination_wizard_dict['res_model']].with_context(destination_wizard_dict['context']).browse(destination_wizard_dict['res_id'])
+        self.assertEqual(len(destination_wizard.move_line_ids), 2)
+        destination_wizard.action_done()
+
+        self.assertEqual(len(picking.move_line_ids[0:2].result_package_id), 1)
+        self.assertEqual(picking.move_line_ids[0].result_package_id, picking.move_line_ids[1].result_package_id)
+        self.assertEqual(len(picking.move_line_ids[2:].result_package_id), 0)
+        self.assertEqual(picking.move_line_ids[0:2].location_dest_id, destination_wizard.location_dest_id)
+
+
+@odoo.tests.tagged('post_install', '-at_install')
+class TestPackagePropagation(TestPackingCommon):
+
+    def test_reusable_package_propagation(self):
+        """ Test a reusable package should not be propagated to the next picking
+        of a mto chain """
+        reusable_package = self.env['stock.quant.package'].create({
+            'name': 'Reusable Package',
+            'package_use': 'reusable',
+        })
+        disposable_package = self.env['stock.quant.package'].create({
+            'name': 'disposable Package',
+            'package_use': 'disposable',
+        })
+        self.productA = self.env['product.product'].create({
+            'name': 'productA',
+            'type': 'product',
+            'tracking': 'none',
+        })
+        self.env['stock.quant']._update_available_quantity(self.productA, self.stock_location, 2)
+        pg = self.env['procurement.group'].create({'name': 'propagation_test'})
+        self.env['procurement.group'].run([
+            pg.Procurement(
+                self.productA,
+                2.0,
+                self.productA.uom_id,
+                self.customer_location,
+                'propagation_test',
+                'propagation_test',
+                self.warehouse.company_id,
+                {
+                    'warehouse_id': self.warehouse,
+                    'group_id': pg
+                }
+            )
+        ])
+        picking = self.env['stock.picking'].search([
+            ('group_id', '=', pg.id),
+            ('location_id', '=', self.stock_location.id),
+        ])
+        picking.action_assign()
+        picking.move_ids.move_line_ids.result_package_id = reusable_package
+        picking.move_ids.move_line_ids.copy({'result_package_id': disposable_package.id})
+        picking.move_ids.move_line_ids.quantity = 1
+        picking.button_validate()
+        self.assertEqual(picking.state, 'done')
+        pack_lines = self.env['stock.picking'].search([
+            ('group_id', '=', pg.id),
+            ('location_id', '=', self.pack_location.id),
+        ]).move_line_ids
+
+        self.assertEqual(len(pack_lines), 2, 'Should have only 2 stock move line')
+        self.assertFalse(pack_lines[0].result_package_id, 'Should not have the reusable package')
+        self.assertEqual(pack_lines[1].result_package_id, disposable_package, 'Should have only the disposable package')
